@@ -1,0 +1,11 @@
+pi:
+  address: "192.168.43.200"
+  user: "pi"
+  password: "raspberry"
+  tub_path: "~/mycar/tub"
+  model_dir_path: "~/mycar/models"
+trainer:
+  user: "augustin_barillec"
+  name: "splinter"
+  tub_path: "~/mycar/tub"
+  model_dir_path: "~/mycar/models"
