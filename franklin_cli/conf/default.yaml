@@ -1,4 +1,4 @@
-pi:
+machine:
   address: "192.168.43.200"
   user: "pi"
   password: "raspberry"
