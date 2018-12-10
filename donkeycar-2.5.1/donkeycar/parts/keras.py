@@ -154,6 +154,7 @@ def default_catlin():
     img_in = Input(shape=(120, 160, 3),
                    name='img_in')  # First layer, input layer, Shape comes from camera.py resolution, RGB
     x = img_in
+    x = Cropping2D(cropping=((40, 0), (0, 0)))(x)  # trim 40 pixels off top
     x = Convolution2D(24, (5, 5), strides=(2, 2), activation='relu')(
         x)  # 24 features, 5 pixel x 5 pixel kernel (convolution, feauture) window, 2wx2h stride, relu activation
     x = Convolution2D(32, (5, 5), strides=(2, 2), activation='relu')(
@@ -192,6 +193,7 @@ def default_catlin():
 def default_linear():
     img_in = Input(shape=(120, 160, 3), name='img_in')
     x = img_in
+    x = Cropping2D(cropping=((40, 0), (0, 0)))(x)  # trim 40 pixels off top
     x = Convolution2D(24, (5, 5), strides=(2, 2), activation='relu')(x)
     x = Convolution2D(32, (5, 5), strides=(2, 2), activation='relu')(x)
     x = Convolution2D(64, (5, 5), strides=(2, 2), activation='relu')(x)

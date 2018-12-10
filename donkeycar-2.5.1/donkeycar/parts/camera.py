@@ -20,7 +20,7 @@ class PiCamera(BaseCamera):
         self.camera.framerate = framerate
         self.rawCapture = PiRGBArray(self.camera, size=resolution)
         self.stream = self.camera.capture_continuous(self.rawCapture,
-            format="rgb", use_video_port=True)
+            format="jpeg", use_video_port=True)
 
         # initialize the frame and the variable used to indicate
         # if the thread should be stopped
@@ -33,7 +33,9 @@ class PiCamera(BaseCamera):
 
     def run(self):
         f = next(self.stream)
-        frame = f.array
+        frame = Image.open(f)
+        frame = frame.crop((0,40,w,h))
+        frame = np.asarray(frame)
         self.rawCapture.truncate(0)
         return frame
 
