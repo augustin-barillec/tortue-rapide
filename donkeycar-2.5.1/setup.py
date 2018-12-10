@@ -7,9 +7,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
-setup(name='donkeycar',
-      version='2.5.1',
-      description='Self driving library for python.',
+setup(name='donkeycar_cropped',
+      version='1.0.0',
+      description='Self driving library for python with cropped images.',
       long_description=long_description,
       long_description_content_type="text/markdown",
       url='https://github.com/wroscoe/donkey',
