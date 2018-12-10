@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Franklin CLI",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/franklin_cli/main.py",
+            "console": "integratedTerminal",
+            "args": ["--tub", "tub/path", "--pilot", "pilot"]
+        },
+        {
             "name": "Python: Current File (Integrated Terminal)",
             "type": "python",
             "request": "launch",
@@ -59,14 +67,6 @@
             "request": "launch",
             "program": "${file}",
             "console": "externalTerminal"
-        },
-        {
-            "name": "Franklin CLI",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/franklin_cli/main.py",
-            "console": "integratedTerminal",
-            "args": ["--tub", "tub/path", "--pilot", "pilot"]
         }
     ]
 }
