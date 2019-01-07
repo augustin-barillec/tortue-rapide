@@ -74,7 +74,7 @@ class KerasCategorical(KerasPilot):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         angle_binned = self.model.predict(img_arr)
         angle_unbinned = util.data.linear_unbin(angle_binned[0])
-        return angle_unbinned, 0
+        return angle_unbinned, 1.5
 
 
 class KerasLinear(KerasPilot):
