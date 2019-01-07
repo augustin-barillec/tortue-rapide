@@ -25,7 +25,7 @@ if __name__ == "__main__":
     if(local_tub is None):
         get_tub_cmd = "sshpass -p raspberry rsync -r pi@192.168.43.200:~/mycar/tub ."
     else:
-        get_tub_cmd = "cp -r {} .".format(local_tub)
+        get_tub_cmd = "cp -r {} tub".format(local_tub)
     subprocess.call(get_tub_cmd, shell=True)
 
     cmd = """zip -r tub.zip tub &&\
