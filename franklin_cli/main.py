@@ -18,20 +18,10 @@ if __name__ == "__main__":
     Needs path to use a tub on this machine.""")
 
     args = parser.parse_args()
-    config_path, local_tub, user = args.config, args.local_tub, args.user
+    local_tub, user = args.local_tub, args.user
 
     logger = logger()
     logger.info("Start training!")
-
-    # "Absolutize" the conf path
-    absolute_config_path = os.path.join(os.path.dirname(__file__), config_path)
-    config = load_yaml_config(absolute_config_path)
-
-    if(user is None):
-        if("user" not in config):
-            print('Please choose a user, either in conf or as --user flag')
-            sys.exit(1)
-        user = config.user
 
     clean_working_tub = "rm -rf tub && rm -f tub.zip"
     subprocess.call(clean_working_tub, shell=True)
