@@ -3,13 +3,9 @@
 #
 # This is a CLI to train Franklin
 
-import os
-import sys
 import argparse
-import logging
 import subprocess
-from helpers import load_yaml_config, logger
-import pexpect
+from helpers import logger
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Franklin CLI")
