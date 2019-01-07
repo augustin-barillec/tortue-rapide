@@ -57,7 +57,8 @@ class KerasPilot:
             verbose=1,
             validation_data=val_gen,
             callbacks=callbacks_list,
-            validation_steps=steps * (1.0 - train_split) / train_split)
+            validation_steps=steps * (1.0 - train_split) / train_split,
+            )
         return hist
 
 
@@ -119,17 +120,22 @@ def default_categorical():
     x = Dense(50, activation='relu')(x)  # Classify the data into 50 features, make all negatives 0
     x = Dropout(.1)(x)  # Randomly drop out 10% of the neurons (Prevent overfitting)
     # categorical output of the angle
-    angle_out = Dense(15, activation='softmax', name='angle_out')(
+    angle_out = Dense(5, activation='softmax', name='angle_out')(
         x)  # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
 
     # continous output of throttle
-    throttle_out = Dense(1, activation='relu', name='throttle_out')(x)  # Reduce to 1 number, Positive number only
+    #throttle_out = Dense(1, activation='relu', name='throttle_out')(x)  # Reduce to 1 number, Positive number only
 
-    model = Model(inputs=[img_in], outputs=[angle_out, throttle_out])
+    model = Model(inputs=[img_in], outputs=[angle_out]
+    #, throttle_out]
+                )
     model.compile(optimizer='adam',
-                  loss={'angle_out': 'categorical_crossentropy',
-                        'throttle_out': 'mean_absolute_error'},
-                  loss_weights={'angle_out': 0.9, 'throttle_out': .01})
+                  metrics=['acc'],
+                  loss={'angle_out': 'categorical_crossentropy'},
+                        #'throttle_out': 'mean_absolute_error'},
+                  loss_weights={'angle_out': 0.9}
+                  #'throttle_out': .01}
+                  )
 
     return model
 
@@ -143,7 +149,7 @@ def linear_unbin_layer(tnsr):
 
     b = K.cast(K.argmax(tnsr), dtype='float32')
     a = b - norm
-    # print('linear_unbin_layer out: {}'.format(a))
+    print('linear_unbin_layer out: {}'.format(a))
     return a
 
 

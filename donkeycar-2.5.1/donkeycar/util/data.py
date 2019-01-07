@@ -17,11 +17,11 @@ def linear_bin(a):
     Returns
     -------
     list of int
-        A list of length 15 with one item set to 1, which represents the linear value, and all other items set to 0.
+        A list of length 5 with one item set to 1, which represents the linear value, and all other items set to 0.
     """
     a = a + 1
-    b = round(a / (2 / 14))
-    arr = np.zeros(15)
+    b = round(a / (2 / 4))
+    arr = np.zeros(5)
     arr[int(b)] = 1
     return arr
 
@@ -34,10 +34,10 @@ def linear_unbin(arr):
     --------
     linear_bin
     """
-    if not len(arr) == 15:
-        raise ValueError('Illegal array length, must be 15')
+    if not len(arr) == 5:
+        raise ValueError('Illegal array length, must be 5')
     b = np.argmax(arr)
-    a = b * (2 / 14) - 1
+    a = b * (2 / 4) - 1
     return a
 
 
