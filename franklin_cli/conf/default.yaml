@@ -9,3 +9,4 @@ trainer:
   name: "splinter"
   tub_path: "~/mycar/tub"
   model_dir_path: "~/mycar/models"
+user: "tristan_letrou_ysance_com"
