@@ -1,0 +1,13 @@
+#cat {
+    float: right;
+    margin-right: 120px;
+    margin-top: 150px;
+}
+
+#record_button {
+    border-radius: 50%;
+    border: none;
+    padding: 50px;
+    margin-top: 20%;
+    margin-left: 15%;
+}
