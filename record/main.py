@@ -14,15 +14,13 @@ def main():
 @socketio.on('record')
 def record(json):
     print(json)
-    # camera = cv2.VideoCapture(0)
-    # i = 0
-    # while i < 10:
-    #     return_value, image = camera.read()
-    #     cv2.imwrite('pics/opencv' + str(i) + '.png', image)
-    #     i += 1
-    # camera.release()
-
-
+    camera = cv2.VideoCapture(0)
+    i = 0
+    while i < 10:
+        return_value, image = camera.read()
+        cv2.imwrite('pics/opencv' + str(i) + '.png', image)
+        i += 1
+    camera.release()
 
 
 if __name__ == '__main__':
