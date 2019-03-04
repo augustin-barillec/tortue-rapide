@@ -1,1 +1,8 @@
 .idea/
+__pycache__/
+franklin_cli/conf/*.yaml
+!franklin_cli/conf/default.yaml
+.vscode
+tub
+tub.zip
+mypilot
