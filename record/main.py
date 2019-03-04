@@ -10,18 +10,14 @@ socketio = SocketIO(app)
 def main():
     return render_template('index.html')
 
+@socketio.on("start_recording")
+def start_record():
+    print("Recording...")
+    # Get the 
 
-@socketio.on('record')
-def record(json):
-    print(json)
-    camera = cv2.VideoCapture(0)
-    i = 0
-    while i < 10:
-        return_value, image = camera.read()
-        cv2.imwrite('pics/opencv' + str(i) + '.png', image)
-        i += 1
-    camera.release()
-
+@socketio.on("stop_recording")
+def stop_record():
+    print("Stopping recording...")
 
 if __name__ == '__main__':
     socketio.run(app)

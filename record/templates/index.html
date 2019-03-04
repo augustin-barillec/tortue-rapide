@@ -1,13 +1,34 @@
 <html lang="en">
+
 <head>
-<title>Display a image</title>
+    <title>Record some images</title>
+    
+    <!-- CSS sheets -->
     <link rel="stylesheet" href="static/main.css">
+    <link rel="stylesheet" href="static/record_switch.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"></link>
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+
+    <!-- Javascript -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 </head>
+
 <body>
-    <img src="static/cat.png" id="cat">
-    <button id="record_button">RECORD</button>
+    <div class="row">
+        <div class="col-md-2">
+            <label for="record_toggle"></label>
+                <h2>Record? </h2><br />
+                <input name="record_toggle" type="checkbox" id="record_button" data-toggle="toggle">
+            </label>
+        </div>
+        <div class="col-md-offset-4">
+            <img src="static/cat.png" id="cat">
+        </div>
+    </div>
     <script src="static/main.js"></script>
 </body>
+
 </html>
