@@ -19,5 +19,9 @@ def start_record():
 def stop_record():
     print("Stopping recording...")
 
+@socketio.on("input_change")
+def input_change(data):
+    print("INPUT {}".format(data["val"]))
+
 if __name__ == '__main__':
     socketio.run(app)
