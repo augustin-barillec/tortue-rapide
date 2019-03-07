@@ -1,29 +1,8 @@
+const socket = io.connect('http://' + document.domain + ':' + location.port);
+// Timeout gamepad loop in ms
+const gamePadLoopTimeout = 1000;
+
 var isRecording = false;
-
-var socket = io.connect('http://' + document.domain + ':' + location.port);
-
-$(document).on("keydown", function (event) {
-  console.log("viznpvo");
-  if (!isRecording) return;
-
-  switch (event.which) {
-    case 38:
-      socket.emit("input_change", { val: "UP" });
-      break;
-    case 40:
-      socket.emit("input_change", { val: "DOWN" });
-      break;
-    case 37:
-      socket.emit("input_change", { val: "LEFT" });
-      break;
-    case 39:
-      socket.emit("input_change", { val: "RIGHT" });
-      break;
-    default:
-      break;
-  }
-
-});
 
 $(document).ready(function () {
   $("#record_toggle").on("change", function (e) {
@@ -35,4 +14,28 @@ $(document).ready(function () {
     }
     isRecording = !isRecording;
   });
+
+  
+  function gamePadLoop() {
+    setTimeout(gamePadLoop, gamePadLoopTimeout);
+    if(isRecording) {
+      const pad = navigator.getGamepads()[0];
+      console.log(pad);
+      if (!pad) {
+        socket.emit("gamepad_out");
+        // TODO: pretty error message
+        return;
+      }
+      angle = pad.axes[0];
+      throttle = pad.axes[3];
+      socket.emit("gamepad_input", angle, throttle);
+    }
+  }
+  gamePadLoop();
+
+  // function check() {
+  //   setTimeout(check, 2000);
+  //   socket.emit("check");
+  // }
+  // check();
 });
