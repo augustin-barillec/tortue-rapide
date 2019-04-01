@@ -1,31 +1,20 @@
-import numpy as np
 import glob
 import json
 import os
-from PIL import Image
 import random
-import matplotlib.pyplot as plt
-from tqdm import tqdm
+from PIL import Image
 import cv2
 
+import numpy as np
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 from imgaug import augmenters as iaa
 from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 from augmentation import *
 from model import default_categorical
 from utils import linear_bin, tub_to_array, rebalance
-
-
-# AVAILABLE TUBS
-tub_20181113_42_afternoon = '/home/data/tortue-rapide/tubs/raw/tub_20181113_42_afternoon'
-tub_20181113_42_evening = '/home/data/tortue-rapide/tubs/raw/tub_20181113_42_evening'
-tub_20181124_morning_lesquare_horaire = '/home/data/tortue-rapide/tubs/raw/tub_20181124_morning_lesquare_horaire'
-tub_20181124_morning_lesquare_antihoraire = '/home/data/tortue-rapide/tubs/raw/tub_20181124_morning_lesquare_antihoraire'
-tub_20181122_ysance_noon = '/home/data/tortue-rapide/tubs/raw/tub_20181122_ysance_noon'
-
-# EXAMPLES
-img_example = '/home/projects/ironcar-dev/tubs/tub_20181124_morning_lesquare_antihoraire/291_cam-image_array_.jpg'
-json_exple = '/home/projects/ironcar-dev/tubs/tub_20181124_morning_lesquare_antihoraire/record_291.json'
+from config import *
 
 save_model_path = '/home/projects/tortue-rapide/franklin_gym/test_models'
 
@@ -58,9 +47,9 @@ x_42_evening, y_42_evening = rebalance(x_42_evening, y_42_evening)
 x_morning_lesquare_horaire, y_morning_lesquare_horaire = rebalance(x_morning_lesquare_horaire, y_morning_lesquare_horaire)
 
 # train / validation split
-X_train = np.concatenate((x_42_afternoon, x_morning_lesquare_antihoraire, x_morning_lesquare_horaire))
-Y_train = np.concatenate((y_42_afternoon, y_morning_lesquare_antihoraire, y_morning_lesquare_horaire))
-X_val, Y_val = X_ysance_noon[:2000], Y_ysance_noon[:2000]
+X_train = np.concatenate((x_42_afternoon, x_morning_lesquare_antihoraire, x_morning_lesquare_horaire, X_ysance_noon))
+Y_train = np.concatenate((y_42_afternoon, y_morning_lesquare_antihoraire, y_morning_lesquare_horaire, Y_ysance_noon))
+#X_val, Y_val = X_ysance_noon[:2000], Y_ysance_noon[:2000]
 
 
 print('augment data...')
@@ -86,7 +75,7 @@ epochs = 100
 steps = 100
 verbose = 1
 min_delta = .0005
-patience = 5
+patience = 8
 use_early_stop = True
 
 model = default_categorical()
@@ -116,10 +105,9 @@ print('fit model...')
 # fit from numpy array
 hist = model.fit(x=X_train,
                  y=Y_train,
-                 steps_per_epoch=steps,
                  epochs=epochs,
+                 validation_split=0.25,
                  verbose=1,
-                 validation_data=(X_val, Y_val),
-                 callbacks=callbacks_list,
-                 validation_steps=200 / 8)
+                 shuffle=True,
+                 callbacks=callbacks_list)
 
