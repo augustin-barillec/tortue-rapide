@@ -23,7 +23,6 @@ def main():
 def start_record():
     print("Recording...")
     car.is_recording = True
-    car.record_images(3)
 
 
 @socketio.on("stop_recording")
@@ -40,13 +39,11 @@ def health_check():
 def gamepad_input(angle_input, throttle_input):
     car.input = (angle_input, throttle_input)
     print("INPUT RECEIVED: {}".format(car.input))
-    time.sleep(1)
 
 @socketio.on("gamepad_out")
 def gamepad_out():
     print("gamepad out")
-    pass
 
 if __name__ == '__main__':
-    car = Car()
+    car = Car(1)
     socketio.run(app)
