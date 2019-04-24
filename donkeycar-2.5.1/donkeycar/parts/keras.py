@@ -71,9 +71,19 @@ class KerasCategorical(KerasPilot):
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
-        angle_binned, throttle = self.model.predict(img_arr)
-        angle_unbinned = util.data.linear_unbin(angle_binned[0])
-        return angle_unbinned, throttle[0][0]
+        angle_binned = self.model.predict(img_arr)
+
+        # angle_unbinned = util.data.linear_unbin(angle_binned[0])
+        arg = angle_binned.argmax()
+
+        if arg == 1:
+            angle_unbinned = 0
+        elif arg==0:
+            angle_unbinned = -1
+        else:
+            angle_unbinned = 1
+
+        return angle_unbinned, 0
 
 
 class KerasLinear(KerasPilot):
