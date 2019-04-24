@@ -76,7 +76,7 @@ class KerasCategorical(KerasPilot):
         # angle_unbinned = util.data.linear_unbin(angle_binned[0])
         arg = angle_binned.argmax()
 
-        if arg == 1:
+        if arg==1:
             angle_unbinned = 0
         elif arg==0:
             angle_unbinned = -1
