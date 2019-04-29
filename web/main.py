@@ -3,10 +3,12 @@ import time
 import json
 import logging
 import cv2
+from threading import Thread
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 
 from car import Car
+from utils.KeepAliveTimer import KeepAliveTimer
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -30,10 +32,13 @@ def stop_record():
     print("Stopping recording...")
     car.is_recording = False
 
+@socketio.on("healthcheck")
+def healthcheck():
+    """This event is emitted frequently by the frontend.
+    It allows us to ensure there is someone controlling the car."""
 
-@socketio.on("check")
-def health_check():
-    print("Latest input: {}".format(car.input))
+    # Refresh the timer
+    keep_alive_timer.run()
 
 @socketio.on("gamepad_input")
 def gamepad_input(angle_input, throttle_input):
@@ -42,8 +47,23 @@ def gamepad_input(angle_input, throttle_input):
 
 @socketio.on("gamepad_out")
 def gamepad_out():
-    print("gamepad out")
+    print("Gamepad out! Stopping...")
+    car.is_recording = False
+
+# def send_latest_image():
+#     while True:
+#         socketio.emit("latest_image", car.latest_image)
+#         print("sending_image")
+#         time.sleep(1)
+
+def on_healthcheck_too_long():
+    print("Healcheck delay exceeded! Stopping...")
+    car.is_recording = False
 
 if __name__ == '__main__':
     car = Car(1)
+    healthcheck_delay = 2
+    keep_alive_timer = KeepAliveTimer(healthcheck_delay, on_healthcheck_too_long)
+    # send_latest_thread = Thread(target=send_latest_image)
+    # send_latest_thread.start()
     socketio.run(app)

@@ -1,6 +1,7 @@
 const socket = io.connect('http://' + document.domain + ':' + location.port);
 // Timeout gamepad loop in ms
 const gamePadLoopTimeout = 1000;
+const checkTimeout = 1000;
 
 var isRecording = false;
 
@@ -15,7 +16,10 @@ $(document).ready(function () {
     isRecording = !isRecording;
   });
 
-  
+  socket.on("latest_image", function(data) {
+    console.log(`latest image received: \n ${data}`);
+  });
+
   function gamePadLoop() {
     setTimeout(gamePadLoop, gamePadLoopTimeout);
     if(isRecording) {
@@ -33,9 +37,9 @@ $(document).ready(function () {
   }
   gamePadLoop();
 
-  // function check() {
-  //   setTimeout(check, 2000);
-  //   socket.emit("check");
-  // }
-  // check();
+  function healthcheck() {
+    setTimeout(healthcheck, checkTimeout);
+    socket.emit("healthcheck");
+  }
+  healthcheck();
 });

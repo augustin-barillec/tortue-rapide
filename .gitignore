@@ -6,4 +6,4 @@ franklin_cli/conf/*.yaml
 tub
 tub.zip
 mypilot
-record/images
+web/images
