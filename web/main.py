@@ -23,13 +23,13 @@ def main():
 
 @socketio.on("start_recording")
 def start_record():
-    print("Recording...")
+    print("Start recording...")
     car.is_recording = True
 
 
 @socketio.on("stop_recording")
 def stop_record():
-    print("Stopping recording...")
+    print("Stop recording...")
     car.is_recording = False
 
 @socketio.on("healthcheck")
@@ -37,7 +37,6 @@ def healthcheck():
     """This event is emitted frequently by the frontend.
     It allows us to ensure there is someone controlling the car."""
 
-    # Refresh the timer
     keep_alive_timer.run()
 
 @socketio.on("gamepad_input")

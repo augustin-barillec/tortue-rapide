@@ -13,20 +13,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="/static/GaugeMeter.js"></script>
 </head>
 
 <body>
     <div class="row">
         <div class="col-md-2">
-            <label for="record_toggle"></label>
-                <h2>Record? </h2><br />
+            <label for="record_toggle">Record?</label>
+                <!-- <h2>Record? </h2><br /> -->
                 <input name="record_toggle" type="checkbox" id="record_toggle" data-toggle="toggle">
             </label>
         </div>
-        <div class="col-md-offset-4">"
-            <img src="static/cat.png" id="cat">
+        <div class="col-md-2">
+            <label for="pilot_toggle">Autopilot?</label>
+                <!-- <h2>Autopilot?</h2><br /> -->
+                <input name="pilot_toggle" type="checkbox" id="pilot_toggle" data-toggle="toggle">
+            </label>
+        </div>
+        <div class="col-md-2">
+            <!-- <label for="speedGauge">Speed</label> -->
+            <h2>Speed</h2><br />
+            <div name="speedGauge" class="GaugeMeter" id="speedGauge"></div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-6">
+            <img src="static/cat.png" id="cat">
+        </div>
     <script src="static/main.js"></script>
 </body>
 
