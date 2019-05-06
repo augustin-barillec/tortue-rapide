@@ -6,4 +6,5 @@ franklin_cli/conf/*.yaml
 tub
 tub.zip
 mypilot
-web/images
+franklin/web/images
+franklin_toolkit.egg-info
