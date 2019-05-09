@@ -51,8 +51,8 @@ class Tub(object):
         if exists:
             # load log and meta
             logger.info('Tub exists: {}'.format(self.path))
-            with open(self.meta_path, 'r') as f:
-                self.meta = json.load(f)
+            # with open(self.meta_path, 'r') as f:
+            #     self.meta = json.load(f)
             self.current_ix = self.get_last_ix() + 1
 
         elif not exists and inputs:
@@ -60,8 +60,8 @@ class Tub(object):
             # create log and save meta
             os.makedirs(self.path)
             self.meta = {'inputs': inputs, 'types': types}
-            with open(self.meta_path, 'w') as f:
-                json.dump(self.meta, f)
+            # with open(self.meta_path, 'w') as f:
+            #     json.dump(self.meta, f)
             self.current_ix = 0
             logger.info('New tub created at: {}'.format(self.path))
         else:
@@ -250,6 +250,7 @@ class Tub(object):
 
     def make_file_name(self, angle, ext='.png'):
         #name = '_'.join([str(self.current_ix).zfill(6), key, ext])
+        angle = round(angle, 4)
         name = '_'.join([str(self.current_ix), str(angle)])  # don't fill zeros
         name = name + ext
         return name
