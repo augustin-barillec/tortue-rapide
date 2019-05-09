@@ -198,7 +198,7 @@ class Tub(object):
 
             elif typ == 'image_array':
                 img = Image.fromarray(np.uint8(val))
-                name = self.make_file_name(key, ext='.jpg')
+                name = self.make_file_name(json_data["user/angle"], ext='.jpg')
                 img.save(os.path.join(self.path, name))
                 json_data[key]=name
 
@@ -206,7 +206,7 @@ class Tub(object):
                 msg = 'Tub does not know what to do with this type {}'.format(typ)
                 raise TypeError(msg)
 
-        self.write_json_record(json_data)
+        # self.write_json_record(json_data)
         self.current_ix += 1
         return self.current_ix
 
@@ -248,10 +248,9 @@ class Tub(object):
             data[key] = val
         return data
 
-    def make_file_name(self, key, ext='.png'):
+    def make_file_name(self, angle, ext='.png'):
         #name = '_'.join([str(self.current_ix).zfill(6), key, ext])
-        name = '_'.join([str(self.current_ix), key, ext])  # don't fill zeros
-        name = name = name.replace('/', '-')
+        name = '_'.join([str(self.current_ix), angle, ext])  # don't fill zeros
         return name
 
     def delete(self):
