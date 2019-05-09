@@ -250,7 +250,7 @@ class Tub(object):
 
     def make_file_name(self, angle, ext='.png'):
         #name = '_'.join([str(self.current_ix).zfill(6), key, ext])
-        name = '_'.join([str(self.current_ix), angle, ext])  # don't fill zeros
+        name = '_'.join([str(self.current_ix), str(angle), ext])  # don't fill zeros
         return name
 
     def delete(self):
