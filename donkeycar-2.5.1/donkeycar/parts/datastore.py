@@ -186,6 +186,7 @@ class Tub(object):
         json_data = {}
 
         for key, val in data.items():
+            print(data)
             typ = self.get_input_type(key)
 
             if typ in ['str', 'float', 'int', 'boolean']:
