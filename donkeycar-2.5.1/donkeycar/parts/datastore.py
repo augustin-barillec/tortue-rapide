@@ -199,7 +199,7 @@ class Tub(object):
 
             elif typ == 'image_array':
                 img = Image.fromarray(np.uint8(val))
-                name = self.make_file_name(json_data["user/angle"], ext='.jpg')
+                name = self.make_file_name(data["user/angle"], ext='.jpg')
                 img.save(os.path.join(self.path, name))
                 json_data[key]=name
 
