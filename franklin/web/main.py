@@ -2,7 +2,6 @@ import os
 import time
 import json
 import logging
-import cv2
 from threading import Thread
 from flask import Flask, render_template
 from flask_socketio import SocketIO
@@ -14,7 +13,7 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+log.setLevel(logging.WARNING)
 
 @app.route('/')
 def main():
@@ -65,4 +64,4 @@ if __name__ == '__main__':
     keep_alive_timer = KeepAliveTimer(healthcheck_delay, on_healthcheck_too_long)
     # send_latest_thread = Thread(target=send_latest_image)
     # send_latest_thread.start()
-    socketio.run(app)
+    socketio.run(app, host="0.0.0.0", port=5000)
