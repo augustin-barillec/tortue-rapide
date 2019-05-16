@@ -1,0 +1,14 @@
+virtual env : source ~/envs/ironcar-tests/bin/activate
+
+
+no augmentation, dropout 0.3 
+Epoch 13/100
+2579/2579 [==============================] - 3s 1ms/step - loss: 0.1198 - acc: 0.9535 - val_loss: 1.1389 - val_acc: 0.5823
+
+4 augmentations, dropout 0.3
+Epoch 12/100
+3773/3773 [==============================] - 3s 849us/step - loss: 0.1294 - acc: 0.9536 - val_loss: 2.3906 - val_acc: 0.4963
+
+5 augmentations, dropout 0.3
+Epoch 14/100
+4150/4150 [==============================] - 3s 775us/step - loss: 0.0808 - acc: 0.9713 - val_loss: 2.0601 - val_acc: 0.5201
