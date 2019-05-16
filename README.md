@@ -29,12 +29,12 @@ Cette magnifique CLI permet d'automatiser les process longs et chiants de l'util
 ### Steering values :
 key|value
 ---|---
-*LEFT* | 440
-*RIGHT* | 360
+*LEFT* | 480
+*RIGHT* | 310
 
 ### Throttling Values :
 key | values
 ---|---
-*FORWARD* | 400
+*FORWARD* | 390 (400 for race)
 *STOP* | 360
 *REWIND* | 330
