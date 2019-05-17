@@ -75,7 +75,9 @@ def drive(cfg, model_path=None):
         def predict_angle(img_arr):
             img_arr = img_arr.reshape((1,) + img_arr.shape)
             angle_binned = model.predict(img_arr)
-            return angle_binned.argmax()*2/(angle_binned_size-1) - 1, 0
+            result = angle_binned.argmax()*2/(angle_binned_size-1) - 1, 0
+            print("DESCISION = {}, ABS = {}".format(result, angle_binned_size))
+            return result
 
         predict_angle_part = Lambda(predict_angle)
         V.add(predict_angle_part, inputs=['cam/image_array'],
