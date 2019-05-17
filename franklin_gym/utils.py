@@ -14,13 +14,10 @@ def linear_bin(a, n_class):
     """
     Convert a value to a categorical array.
 
-    Parameters
-    ----------
     a : float
         A value between -1 and 1
 
     Returns
-    -------
     list of int
         A list of length n_class with one item set to 1, which represents the linear value, and all other items set to 0.
     """
@@ -28,6 +25,7 @@ def linear_bin(a, n_class):
     b = round((n_class - 1) * a / 2)
     arr = np.zeros(n_class)
     arr[int(b)] = 1
+
     return arr
 
 
@@ -71,6 +69,34 @@ def tub_to_array(tub_path, n_class, n_first_files=None):
 
     return x, np.asarray(angle_categorical)
 
+
+def newtub_to_array(tub_path, n_class=3, n_first_files=None):
+    """
+    Return dict of Numpy arrays containing pixel images and associated values of angle and throttle from a tub path
+
+    tub_path: str
+        path of tub to convert
+    n_class : int
+        number of classes for dummy y
+    """
+    from PIL import Image
+    from glob import glob
+    import re
+
+    tub_path = os.path.normpath(tub_path)
+
+    jpg_files = glob(os.path.join(tub_path, '*.jpg'))
+    jpg_files.sort(key=lambda x: int(os.path.basename(x).split('_')[0]))
+
+    x = np.array([np.array(Image.open(fname)) for fname in jpg_files])
+    # index = [int(os.path.basename(x).split('_')[0]) for x in jpg_files]
+
+    angle_float = [float(re.search('_(.*?).jpg', os.path.basename(x)).group(1)) for x in jpg_files]
+    angle_categorical = [linear_bin(n, n_class) for n in angle_float]
+
+    # y_throttle = []
+
+    return x, np.asarray(angle_categorical)
 
 
 def rebalance(X, Y, replace=False):
@@ -223,3 +249,102 @@ class TubTo3DGenerator(Sequence):
         return X, y
 
 
+def dispath_samples(tub_path, training_folder, X, Y):
+    from PIL import Image
+    import numpy as np
+
+    training_folder = os.path.normpath(training_folder)
+    tub_path = os.path.normpath(tub_path)
+    tub_name = os.path.basename(tub_path)
+
+    if not os.path.exists(training_folder):
+        raise Exception('no training folder at path : {}'.format(training_folder))
+    left = [np.array_equal(y, np.array([1, 0, 0])) for y in Y]
+    straight = [np.array_equal(y, np.array([0, 1, 0])) for y in Y]
+    right = [np.array_equal(y, np.array([0, 0, 1])) for y in Y]
+    assert sum(left) + sum(straight) + sum(right) == len(X) == len(Y)
+
+    for i, x in enumerate(X):
+        im = Image.fromarray(x)
+        if left[i]: im.save(os.path.join(training_folder, 'left', tub_name + '_' + str(i) + '.jpg'), format='jpeg')
+        if straight[i]: im.save(os.path.join(training_folder, 'straight', tub_name + '_' + str(i) + '.jpg'),
+                                format='jpeg')
+        if right[i]: im.save(os.path.join(training_folder, 'right', tub_name + '_' + str(i) + '.jpg'), format='jpeg')
+
+
+def make_generator_folder(tub_paths_list, new_training_folder):
+    import os
+    import shutil
+
+    if os.path.exists(new_training_folder):
+        shutil.rmtree(new_training_folder)
+
+    os.makedirs(os.path.join(new_training_folder, 'left'))
+    os.makedirs(os.path.join(new_training_folder, 'straight'))
+    os.makedirs(os.path.join(new_training_folder, 'right'))
+
+    for tub in tub_paths_list:
+        print('Disatch for set ' + tub + '...')
+        if any(x in tub for x in ['tub']):
+            X, Y = tub_to_array(tub, n_class=3)
+            dispath_samples(tub, new_training_folder, X, Y)
+        else:
+            # augment(tub, .3, ['flip', 'brightness', 'contrast'])
+            X, Y = newtub_to_array(tub)
+            dispath_samples(tub, new_training_folder, X, Y)
+            # h_flip()
+
+
+def newtub_to_array(tub_path, n_class=3, n_first_files=None):
+    """
+    Return dict of Numpy arrays containing pixel images and associated values of angle and throttle from a tub path
+
+    tub_path: str
+        path of tub to convert
+    n_class : int
+        number of classes for dummy y
+    """
+    from PIL import Image
+    from glob import glob
+    import re
+
+    tub_path = os.path.normpath(tub_path)
+
+    jpg_files = glob(os.path.join(tub_path, '*.jpg'))
+    # jpg_files.sort(key=lambda x: int(os.path.basename(x).split('_')[0]))
+
+    x = np.array([np.array(Image.open(fname)) for fname in jpg_files])
+    # index = [int(os.path.basename(x).split('_')[0]) for x in jpg_files]
+
+    angle_float = [float(re.search('_(.*?).jpg', os.path.basename(x)).group(1)) for x in jpg_files]
+    angle_categorical = [linear_bin(n, n_class) for n in angle_float]
+
+    # y_throttle = []
+
+    return x, np.asarray(angle_categorical)
+
+
+def horizontal_flip(img, angle):
+    """Horizontal image flipping and angle correction.
+    Img: Input image to transform in Numpy array.
+    Angle: Corresponding label dummy format.
+    """
+    import numpy as np
+
+    return np.fliplr(img), np.flipud(angle)
+
+
+def generate_horizontal_flip(X, Y, proportion=1):
+    import random
+    # Generate a random selection of indexes
+    indexes = random.sample(range(0, X.shape[0]), int(X.shape[0] * proportion))
+
+    X_aug = np.empty((int(X.shape[0] * proportion), X.shape[1], X.shape[2], X.shape[3]))
+    Y_aug = np.empty((int(Y.shape[0] * proportion), Y.shape[1]), dtype=float)
+    for i, index in enumerate(indexes):
+        # Apply the desired transformation
+        im, angle = horizontal_flip(X[index], Y[index])
+        Y_aug[i] = angle
+        X_aug[i] = im
+
+    return X_aug, Y_aug
