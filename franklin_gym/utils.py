@@ -267,12 +267,11 @@ def dispath_samples(tub_path, training_folder, X, Y):
     for i, x in enumerate(X):
         im = Image.fromarray(x)
         if left[i]: im.save(os.path.join(training_folder, 'left', tub_name + '_' + str(i) + '.jpg'), format='jpeg')
-        if straight[i]: im.save(os.path.join(training_folder, 'straight', tub_name + '_' + str(i) + '.jpg'),
-                                format='jpeg')
+        if straight[i]: im.save(os.path.join(training_folder, 'straight', tub_name + '_' + str(i) + '.jpg'), format='jpeg')
         if right[i]: im.save(os.path.join(training_folder, 'right', tub_name + '_' + str(i) + '.jpg'), format='jpeg')
 
 
-def make_generator_folder(tub_paths_list, new_training_folder):
+def make_generator_folder(tub_paths_list, new_training_folder, flip_proportion=0):
     import os
     import shutil
 
@@ -287,12 +286,15 @@ def make_generator_folder(tub_paths_list, new_training_folder):
         print('Disatch for set ' + tub + '...')
         if any(x in tub for x in ['tub']):
             X, Y = tub_to_array(tub, n_class=3)
-            dispath_samples(tub, new_training_folder, X, Y)
         else:
-            # augment(tub, .3, ['flip', 'brightness', 'contrast'])
             X, Y = newtub_to_array(tub)
-            dispath_samples(tub, new_training_folder, X, Y)
-            # h_flip()
+
+        if flip_proportion>0:
+            X_aug, Y_aug = generate_horizontal_flip(X, Y, proportion=flip_proportion)
+            X = np.concatenate((X, X_aug))
+            Y = np.concatenate((Y, Y_aug))
+
+        dispath_samples(tub, new_training_folder, X, Y)
 
 
 def newtub_to_array(tub_path, n_class=3, n_first_files=None):
