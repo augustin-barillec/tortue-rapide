@@ -72,8 +72,9 @@ def drive(cfg, model_path=None):
         model_basename = os.path.basename(model_path)
         angle_binned_size = int(model_basename.split('-')[0])
 
-        def predict_angle(img):
-            angle_binned = model.predict(img)
+        def predict_angle(img_arr):
+            img_arr = img_arr.reshape((1,) + img_arr.shape)
+            angle_binned = model.predict(img_arr)
             return angle_binned.argmax()*2/(angle_binned_size-1) - 1, 0
 
         predict_angle_part = Lambda(predict_angle)
