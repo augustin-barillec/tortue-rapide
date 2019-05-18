@@ -293,6 +293,7 @@ def make_generator_folder(tub_paths_list, new_training_folder, flip_proportion=0
             X_aug, Y_aug = generate_horizontal_flip(X, Y, proportion=flip_proportion)
             X = np.concatenate((X, X_aug))
             Y = np.concatenate((Y, Y_aug))
+            print(X.shape)
 
         dispath_samples(tub, new_training_folder, X, Y)
 
@@ -341,7 +342,7 @@ def generate_horizontal_flip(X, Y, proportion=1):
     # Generate a random selection of indexes
     indexes = random.sample(range(0, X.shape[0]), int(X.shape[0] * proportion))
 
-    X_aug = np.empty((int(X.shape[0] * proportion), X.shape[1], X.shape[2], X.shape[3]))
+    X_aug = np.empty((int(X.shape[0] * proportion), X.shape[1], X.shape[2], X.shape[3])).astype(np.uint8)
     Y_aug = np.empty((int(Y.shape[0] * proportion), Y.shape[1]), dtype=float)
     for i, index in enumerate(indexes):
         # Apply the desired transformation
