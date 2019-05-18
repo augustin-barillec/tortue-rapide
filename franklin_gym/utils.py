@@ -12,10 +12,9 @@ from tensorflow.python.keras.utils import Sequence
 
 def linear_bin(a, n_class):
     """
-    Convert a value to a categorical array.
+    Convert a value between -1 and 1 to a categorical array.
 
     a : float
-        A value between -1 and 1
 
     Returns
     list of int
@@ -29,14 +28,18 @@ def linear_bin(a, n_class):
     return arr
 
 
-def tub_to_array(tub_path, n_class, n_first_files=None):
+def tub_to_array(tub_path, n_class=3, n_first_files=None):
     """
-    Return dict of Numpy arrays containing pixel images and associated values of angle and throttle from a tub path
+    IO util : Return X Y Numpy arrays from a "tub" format image directory (cf donckeycar)
 
     tub_path: str
         path of tub to convert
     n_first_files: int
 
+    Returns
+    tuple (X, Y)
+        X : numpy array of images
+        Y : labels one hot encoded
     """
     pics_list = glob(tub_path + '/*.jpg')
     records_list = glob(tub_path + "/record_*.json")
@@ -70,14 +73,20 @@ def tub_to_array(tub_path, n_class, n_first_files=None):
     return x, np.asarray(angle_categorical)
 
 
-def newtub_to_array(tub_path, n_class=3, n_first_files=None):
+def newtub_to_array(tub_path, n_class=3):
     """
-    Return dict of Numpy arrays containing pixel images and associated values of angle and throttle from a tub path
+    IO util : Return X Y Numpy arrays from a tortue-rapide format image directory
 
     tub_path: str
         path of tub to convert
     n_class : int
         number of classes for dummy y
+
+    Returns
+    tuple (X, Y)
+        X : numpy array of images
+        Y : labels one hot encoded
+
     """
     from PIL import Image
     from glob import glob
@@ -99,12 +108,14 @@ def newtub_to_array(tub_path, n_class=3, n_first_files=None):
     return x, np.asarray(angle_categorical)
 
 
-def rebalance(X, Y, replace=False):
+def rebalance_3_classes(X, Y, replace=False):
     """
     Rebalance classes by undersampling on the over represented classes
 
-    X : numpy array image
-    Y : must by numpy array of length 3 eg [1, 0, 0]
+    X : np.array
+        images
+    Y : np.array
+        one hot encoded labels eg [1, 0, 0]
     """
     left = np.array([np.array_equal(a, np.array([1, 0, 0])) for a in Y])
     center = np.array([np.array_equal(a, np.array([0, 1, 0])) for a in Y])
@@ -127,10 +138,14 @@ def generate_verified_tub_from_indexes(original_tub_path, new_tub_path, verified
     """
     Generate new verified tub from old tub path and verified index of files
 
-    original_tub_path {str} : old tub dir path
-    new_tub_path {str} : new tub dir path to be created
-    verified_indexes {list} : list of image/record indexes to keep, refering to file names indexes.
-        eg : 1005 to keep 1005_cam-image_array_.jpg and 1005_record.json"""
+    original_tub_path: str
+        original tub path to du the copy from
+    new_tub_path: str
+        new tub path to be created
+    verified_indexes: list
+        list of image/record indexes to keep, refering to file names indexes.
+        eg : 1005 to keep 1005_cam-image_array_.jpg and 1005_record.json
+    """
     import shutil
 
     if not os.path.exists(new_tub_path):
@@ -162,7 +177,8 @@ def generate_npy_tub_from_original(tub_path, n_classes=3):
     Generate numpy array format images from original tub format and save them in ../npy_format/{tub_name}
     relative path from tub_path (as is in google drive folder)
 
-    tub_path {str}'''
+    tub_path: str
+    '''
     from imageio import imread
 
     tub_path = os.path.normpath(tub_path)
@@ -194,7 +210,7 @@ def generate_npy_tub_from_original(tub_path, n_classes=3):
 
 class TubTo3DGenerator(Sequence):
     '''
-    Construct Keras Data generator that handle 3D image data for tortue rapide 3D conv net training
+    Construct Keras Data generator that export 3D images batches for tortue-rapide 3D convnet training
     '''
 
     def __init__(self, tub_path, batch_size, frames_per_stack, dim=(120, 160), n_classes=3, shuffle=False,
@@ -250,6 +266,19 @@ class TubTo3DGenerator(Sequence):
 
 
 def dispath_samples(tub_path, training_folder, X, Y):
+    """
+    Dispatch each image to new location depending on its class
+    for 3 class models only !
+
+    :param tub_path: str
+        images folder path
+    :param training_folder: str
+        training folder to be created
+    :param X: np.array
+        images
+    :param Y: np.array
+        labels
+    """
     from PIL import Image
     import numpy as np
 
@@ -272,6 +301,16 @@ def dispath_samples(tub_path, training_folder, X, Y):
 
 
 def make_generator_folder(tub_paths_list, new_training_folder, flip_proportion=0):
+    """
+    Reorganise Data to match keras.ImageDataGenerator.flow_from_directory() requirements
+
+    :param tub_paths_list: list of str
+        image folders to process
+    :param new_training_folder: str
+        path of training folder to be created
+    :param flip_proportion: float [0, 11
+        proportion of images to flip. Flipped images are then ADDED to the existing images
+    """
     import os
     import shutil
 
@@ -329,6 +368,7 @@ def newtub_to_array(tub_path, n_class=3, n_first_files=None):
 
 def horizontal_flip(img, angle):
     """Horizontal image flipping and angle correction.
+
     Img: Input image to transform in Numpy array.
     Angle: Corresponding label dummy format.
     """
@@ -338,6 +378,13 @@ def horizontal_flip(img, angle):
 
 
 def generate_horizontal_flip(X, Y, proportion=1):
+    """Horizontaly flip a batch of images and samples
+
+    :param X: np.array
+    :param Y: np.array
+    :param proportion: float [0, 1]
+    :return: (X_aug, Y_aug): flipped np.arrays
+    """
     import random
     # Generate a random selection of indexes
     indexes = random.sample(range(0, X.shape[0]), int(X.shape[0] * proportion))
