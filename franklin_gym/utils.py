@@ -314,6 +314,9 @@ def make_generator_folder(tub_paths_list, new_training_folder, flip_proportion=0
     import os
     import shutil
 
+    if not os.path.isabs(new_training_folder):
+        raise Exception('path should be '.format(x))
+
     if os.path.exists(new_training_folder):
         shutil.rmtree(new_training_folder)
 
@@ -323,10 +326,10 @@ def make_generator_folder(tub_paths_list, new_training_folder, flip_proportion=0
 
     for tub in tub_paths_list:
         print('Disatch for set ' + tub + '...')
-        if any(x in tub for x in ['tub']):
-            X, Y = tub_to_array(tub, n_class=3)
-        else:
-            X, Y = newtub_to_array(tub)
+        #if any(x in tub for x in ['tub']):
+        #    X, Y = tub_to_array(tub, n_class=3)
+        #else:
+        X, Y = newtub_to_array(tub)
 
         if flip_proportion>0:
             X_aug, Y_aug = generate_horizontal_flip(X, Y, proportion=flip_proportion)
