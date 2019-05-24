@@ -19,13 +19,12 @@ import donkeycar as dk
 
 from donkeycar.parts.camera import PiCamera
 from donkeycar.parts.transform import Lambda
-from donkeycar.parts.keras import KerasCategorical
 from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.datastore import TubWriter
 from donkeycar.parts.controller import LocalWebController
 from donkeycar.parts.clock import Timestamp
 
-from tensorflow.python.keras.models import Model, load_model
+from tensorflow.python.keras.models import load_model
 
 
 def drive(cfg, model_path=None):
@@ -70,6 +69,9 @@ def drive(cfg, model_path=None):
     if model_path:
         model = load_model(model_path)
         model_basename = os.path.basename(model_path)
+
+
+
         angle_binned_size = int(model_basename.split('-')[0])
 
         def predict_angle(img_arr):

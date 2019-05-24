@@ -1,6 +1,5 @@
 .idea/
-__pycache__/
-.ipynb_checkpoints/
+
 
 config.py
 franklin_cli/conf/*.yaml
