@@ -1,6 +1,6 @@
 const socket = io.connect('http://' + document.domain + ':' + location.port);
 // Timeout gamepad loop in ms
-const gamePadLoopTimeout = 1000;
+const gamePadLoopTimeout = 100;
 const checkTimeout = 1000;
 
 let isRecording = false;

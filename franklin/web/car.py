@@ -18,6 +18,7 @@ class Car():
         self.file_pattern = "image_{index}_{angle}_{throttle}.jpg"
 
         self.camera = camera
+        self.current_index = None
 
         self.thread = Thread(target=self.record_images)
         self.thread.start()
@@ -33,9 +34,10 @@ class Car():
         self.__is_recording = value
 
     def record_images(self):
-        i = self.current_index
 
         while True:
+            if self.current_index is None:
+                continue
             if not self.is_recording:
                 continue
             
@@ -43,22 +45,18 @@ class Car():
             if angle is None or throttle is None:
                 continue
 
-            i += 1
+            self.current_index += 1
             # start_time = time.time()
 
             # data = {'ts': start_time}
 
             angle, throttle = self.input
             file_name = self.file_pattern.format(
-                angle=angle, throttle=throttle, index=i)
+                angle=angle, throttle=throttle, index=self.current_index)
             
             self.save_image(self.camera.frame, file_name)
 
             self.input = (None, None)
-            
-            # sleep_time = self.seconds - (time.time() - start_time)
-            # if sleep_time > 0.0:
-            #     time.sleep(sleep_time)
 
     def save_image(self, image_array, name):
         img = Image.fromarray(np.uint8(image_array))
