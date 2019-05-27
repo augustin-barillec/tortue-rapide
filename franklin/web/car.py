@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 import json
 from threading import Thread
 
@@ -15,7 +16,7 @@ class Car():
         self.images_dir = os.path.join(current_dir, "images")
         os.makedirs(self.images_dir, exist_ok=True)
         
-        self.file_pattern = "image_{index}_{angle}_{throttle}.jpg"
+        self.file_pattern = "image_{index}_{angle}_{ts_input}_{ts_img}.jpg"
 
         self.camera = camera
         self.current_index = None
@@ -41,22 +42,24 @@ class Car():
             if not self.is_recording:
                 continue
             
-            angle, throttle = self.input
+            angle, throttle, ts_input = self.input
             if angle is None or throttle is None:
                 continue
 
             self.current_index += 1
-            # start_time = time.time()
-
-            # data = {'ts': start_time}
+            start_time = time.time()
 
             angle, throttle = self.input
             file_name = self.file_pattern.format(
-                angle=angle, throttle=throttle, index=self.current_index)
+                index=self.current_index, angle=angle, ts_input=ts_input, ts_img=datetime.timestamp(datetime.now()))
             
             self.save_image(self.camera.frame, file_name)
 
             self.input = (None, None)
+
+            sleep_time = 50 - (time.time() - start_time)
+            if sleep_time > 0.0:
+                time.sleep(sleep_time)
 
     def save_image(self, image_array, name):
         img = Image.fromarray(np.uint8(image_array))

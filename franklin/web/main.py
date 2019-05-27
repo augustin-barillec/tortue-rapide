@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 import json
 import logging
 from threading import Thread
@@ -42,7 +43,7 @@ def healthcheck():
 
 @socketio.on("gamepad_input")
 def gamepad_input(angle_input, throttle_input):
-    car.input = (angle_input, throttle_input)
+    car.input = (angle_input, throttle_input, datetime.now())
     print("INPUT RECEIVED: {}".format(car.input))
 
 @socketio.on("gamepad_out")
