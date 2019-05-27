@@ -13,7 +13,9 @@ class Car():
 
         current_dir = os.path.abspath(os.path.dirname(__file__))
         self.images_dir = os.path.join(current_dir, "images")
-        self.file_pattern = "image_{index}_{angle}_{throttle}"
+        os.makedirs(self.images_dir, exist_ok=True)
+        
+        self.file_pattern = "image_{index}_{angle}_{throttle}.jpg"
 
         self.camera = camera
 
@@ -27,10 +29,11 @@ class Car():
     @is_recording.setter
     def is_recording(self, value):
         assert isinstance(value, bool)
+        self.current_index = self.get_last_index()
         self.__is_recording = value
 
     def record_images(self):
-        i = self.get_last_index()
+        i = self.current_index
 
         while True:
             if not self.is_recording:
@@ -49,7 +52,7 @@ class Car():
             file_name = self.file_pattern.format(
                 angle=angle, throttle=throttle, index=i)
             
-            self.save_image(self.camera.image_array, file_name)
+            self.save_image(self.camera.frame, file_name)
 
             self.input = (None, None)
             

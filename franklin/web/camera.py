@@ -6,7 +6,7 @@ from picamera import PiCamera
 
 class Camera():
     def __init__(self):
-        resolution = (120, 160)
+        resolution = (160, 120)
         # initialize the camera and stream
         self.camera = PiCamera()  # PiCamera gets resolution (height, width)
         self.camera.resolution = resolution
