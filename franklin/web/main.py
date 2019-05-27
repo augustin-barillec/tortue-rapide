@@ -43,18 +43,12 @@ def healthcheck():
 
 @socketio.on("gamepad_input")
 def gamepad_input(angle_input, throttle_input):
-    car.input = (angle_input, throttle_input, datetime.timestamp(datetime.now()))
+    car.input = (angle_input, throttle_input)
 
 @socketio.on("gamepad_out")
 def gamepad_out():
     print("Gamepad out! Stopping...")
     car.is_recording = False
-
-# def send_latest_image():
-#     while True:
-#         socketio.emit("latest_image", car.latest_image)
-#         print("sending_image")
-#         time.sleep(1)
 
 def on_healthcheck_too_long():
     print("Healcheck delay exceeded! Stopping...")

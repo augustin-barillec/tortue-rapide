@@ -16,7 +16,7 @@ class Car():
         self.images_dir = os.path.join(current_dir, "images")
         os.makedirs(self.images_dir, exist_ok=True)
         
-        self.file_pattern = "image_{index}_{angle}_{ts_input}_{ts_img}.jpg"
+        self.file_pattern = "image_{index}_{angle}.jpg"
 
         self.camera = camera
         self.current_index = None
@@ -42,22 +42,21 @@ class Car():
             if not self.is_recording:
                 continue
             
-            angle, throttle, ts_input = self.input
+            angle, throttle = self.input
             if angle is None or throttle is None:
                 continue
 
             self.current_index += 1
             start_time = time.time()
 
-            angle, throttle = self.input
             file_name = self.file_pattern.format(
-                index=self.current_index, angle=angle, ts_input=ts_input, ts_img=datetime.timestamp(datetime.now()))
+                index=self.current_index, angle=angle)
             
             self.save_image(self.camera.frame, file_name)
 
             self.input = (None, None)
 
-            sleep_time = 50 - (time.time() - start_time)
+            sleep_time = (50/1000) - (time.time() - start_time)
             if sleep_time > 0.0:
                 time.sleep(sleep_time)
 
