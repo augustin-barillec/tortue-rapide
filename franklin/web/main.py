@@ -43,8 +43,7 @@ def healthcheck():
 
 @socketio.on("gamepad_input")
 def gamepad_input(angle_input, throttle_input):
-    car.input = (angle_input, throttle_input, datetime.now())
-    print("INPUT RECEIVED: {}".format(car.input))
+    car.input = (angle_input, throttle_input, datetime.timestamp(datetime.now()))
 
 @socketio.on("gamepad_out")
 def gamepad_out():
