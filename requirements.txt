@@ -1,2 +1,5 @@
 flask==0.12.2
 Flask-SocketIO==2.9.3
+picamera
+pillow
+numpy

@@ -7,6 +7,8 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 
 from car import Car
+from camera import Camera
+
 from utils.KeepAliveTimer import KeepAliveTimer
 
 app = Flask(__name__)
@@ -59,9 +61,12 @@ def on_healthcheck_too_long():
     car.is_recording = False
 
 if __name__ == '__main__':
-    car = Car(1)
+    camera = Camera()
+    # Wait a bit to ensure that the camera started
+    time.sleep(10)
+    car = Car(camera)
+
     healthcheck_delay = 2
     keep_alive_timer = KeepAliveTimer(healthcheck_delay, on_healthcheck_too_long)
-    # send_latest_thread = Thread(target=send_latest_image)
-    # send_latest_thread.start()
+
     socketio.run(app, host="0.0.0.0", port=5000)

@@ -3,16 +3,20 @@ import time
 import json
 from threading import Thread
 
+import numpy as np
+from PIL import Image
+
 class Car():
-    def __init__(self, seconds):
+    def __init__(self, camera):
         self.input = (None, None)
-        self.seconds = seconds
         self.__is_recording = False
-        self.latest_image = None
 
         current_dir = os.path.abspath(os.path.dirname(__file__))
         self.images_dir = os.path.join(current_dir, "images")
-        
+        self.file_pattern = "image_{index}_{angle}_{throttle}"
+
+        self.camera = camera
+
         self.thread = Thread(target=self.record_images)
         self.thread.start()
 
@@ -26,10 +30,6 @@ class Car():
         self.__is_recording = value
 
     def record_images(self):
-        current_dir = os.path.abspath(os.path.dirname(__file__))
-        images_dir = os.path.join(current_dir, "images")
-        file_pattern = "image_{index}_{angle}_{throttle}"
-
         i = self.get_last_index()
 
         while True:
@@ -41,23 +41,25 @@ class Car():
                 continue
 
             i += 1
-            start_time = time.time()
+            # start_time = time.time()
 
-            data = {'ts': start_time}
+            # data = {'ts': start_time}
 
             angle, throttle = self.input
-            file_name = file_pattern.format(
+            file_name = self.file_pattern.format(
                 angle=angle, throttle=throttle, index=i)
+            
+            self.save_image(self.camera.image_array, file_name)
 
-            with open(os.path.join(images_dir, file_name), 'w') as outfile:
-                json.dump(data, outfile)
-            
             self.input = (None, None)
-            self.latest_image = file_name
             
-            sleep_time = self.seconds - (time.time() - start_time)
-            if sleep_time > 0.0:
-                time.sleep(sleep_time)
+            # sleep_time = self.seconds - (time.time() - start_time)
+            # if sleep_time > 0.0:
+            #     time.sleep(sleep_time)
+
+    def save_image(self, image_array, name):
+        img = Image.fromarray(np.uint8(image_array))
+        img.save(os.path.join(self.images_dir, name))
 
     def get_last_index(self):
         files = next(os.walk(self.images_dir))[2]
