@@ -53,13 +53,13 @@ class Car():
 
     @current_model.setter
     def current_model(self, value):
-        self.active_model = value
+        self.__current_model = value
             
 
     def predict_angle(self, img_arr):
         img_arr = img_arr/255 - 0.5
         img_arr = img_arr.reshape((1,) + img_arr.shape)
-        angle_binned = self.active_model.predict(img_arr)
+        angle_binned = self.current_model.predict(img_arr)
         result = angle_binned.argmax()*2/(5-1) - 1, 0
         return result
 
