@@ -30,7 +30,7 @@ class Controller:
             print("PMW setting failed!\n{}".format(e))
 
     def set_steer(self, angle):
-        pulse = data_utils.data.map_range(
+        pulse = data_utils.map_range(
             angle,
             -1, 1,
             MAX_LEFT, MAX_RIGHT
