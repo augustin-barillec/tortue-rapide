@@ -9,6 +9,7 @@ from flask_socketio import SocketIO
 
 from car import Car
 from camera import Camera
+from Controller import Controller
 
 from utils.KeepAliveTimer import KeepAliveTimer
 
@@ -50,16 +51,32 @@ def gamepad_out():
     print("Gamepad out! Stopping...")
     car.is_recording = False
 
+@socketio.on("set_model")
+def set_model(name):
+    if name == "":
+        print(f"Switching to human mode")
+        car.current_model = None
+    else:
+        print(f"Switching to {name} model")
+        car.current_model = name
+
 def on_healthcheck_too_long():
     print("Healcheck delay exceeded! Stopping...")
     car.is_recording = False
 
 if __name__ == '__main__':
+    # Set up camera
     camera = Camera()
     # Wait a bit to ensure that the camera started
     time.sleep(10)
-    car = Car(camera)
 
+    # Set up car controller
+    controller = Controller()
+
+    # Set up recording
+    car = Car(camera, controller)
+
+    # Set up health check timer
     healthcheck_delay = 2
     keep_alive_timer = KeepAliveTimer(healthcheck_delay, on_healthcheck_too_long)
 

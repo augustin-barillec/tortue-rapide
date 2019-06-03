@@ -8,9 +8,15 @@ import numpy as np
 from PIL import Image
 
 class Car():
-    def __init__(self, camera):
+    def __init__(self, camera, controller):
         self.input = (None, None)
         self.__is_recording = False
+        self.__current_model = None
+
+        self.is_driving = False
+        self.camera = camera
+        self.controller = controller
+        self.current_index = None
 
         current_dir = os.path.abspath(os.path.dirname(__file__))
         self.images_dir = os.path.join(current_dir, "images")
@@ -18,11 +24,13 @@ class Car():
         
         self.file_pattern = "image_{index}_{angle}.jpg"
 
-        self.camera = camera
-        self.current_index = None
+        # Thread that controls the car
+        self.drive_thread = Thread(target=self.drive)
+        self.drive_thread.start()
 
-        self.thread = Thread(target=self.record_images)
-        self.thread.start()
+        # Thread that records images
+        self.record_thread = Thread(target=self.record_images)
+        self.record_thread.start()
 
     @property
     def is_recording(self):
@@ -34,8 +42,18 @@ class Car():
         self.current_index = self.get_last_index()
         self.__is_recording = value
 
-    def record_images(self):
+    @property
+    def current_model(self):
+        return self.__current_model
 
+    @current_model.setter
+    def current_model(self, value):
+        assert isinstance(value, str)
+        # Handle model changes here
+        # Load the model? Stop the car while loading?
+        self.__current_model = value
+
+    def record_images(self):
         while True:
             if self.current_index is None:
                 continue
@@ -54,12 +72,33 @@ class Car():
             
             self.save_image(self.camera.frame, file_name)
 
-            self.input = (None, None)
-
             sleep_time = (50/1000) - (time.time() - start_time)
             if sleep_time > 0.0:
                 time.sleep(sleep_time)
 
+    def drive(self):
+        while True:
+            if not self.is_driving:
+                continue
+
+            start_time = time.time()
+
+            # We're using a model
+            if self.current_model is not None:
+                # Use the prediction
+                print("Predicting stuff...")
+                angle, throttle = (0, 1)
+            else:
+                angle, throttle = self.input
+                if angle is None or throttle is None:
+                    continue
+
+            self.controller.set_pulses((angle, throttle))
+
+            sleep_time = (50/1000) - (time.time() - start_time)
+            if sleep_time > 0.0:
+                time.sleep(sleep_time)
+            
     def save_image(self, image_array, name):
         img = Image.fromarray(np.uint8(image_array))
         img.save(os.path.join(self.images_dir, name))
