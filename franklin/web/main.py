@@ -54,10 +54,10 @@ def gamepad_out():
 @socketio.on("set_model")
 def set_model(name):
     if name == "":
-        print(f"Switching to human mode")
+        print("Switching to human mode")
         car.current_model = None
     else:
-        print(f"Switching to {name} model")
+        print("Switching to {} model".format(name))
         car.current_model = name
 
 def on_healthcheck_too_long():
