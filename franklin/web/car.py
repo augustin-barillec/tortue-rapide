@@ -57,6 +57,7 @@ class Car():
             
 
     def predict_angle(self, img_arr):
+        img_arr = np.uint8(img_arr)
         img_arr = img_arr/255 - 0.5
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         angle_binned = self.current_model.predict(img_arr)
