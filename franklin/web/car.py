@@ -6,6 +6,7 @@ from threading import Thread
 
 import numpy as np
 from PIL import Image
+from tensorflow.python.keras.models import load_model
 
 class Car():
     def __init__(self, camera, controller):
@@ -20,9 +21,13 @@ class Car():
 
         current_dir = os.path.abspath(os.path.dirname(__file__))
         self.images_dir = os.path.join(current_dir, "images")
+        self.models_dir = os.path.join(current_dir, "models")
         os.makedirs(self.images_dir, exist_ok=True)
+        os.makedirs(self.models_dir, exist_ok=True)
         
         self.file_pattern = "image_{index}_{angle}.jpg"
+
+        self.angle_binned_size = 5
 
         # Thread that controls the car
         self.drive_thread = Thread(target=self.drive)
@@ -48,10 +53,21 @@ class Car():
 
     @current_model.setter
     def current_model(self, value):
-        assert isinstance(value, str)
-        # Handle model changes here
-        # Load the model? Stop the car while loading?
-        self.__current_model = value
+        if value is None:
+            self.__current_model = None
+            self.__active_model = None
+        else:
+            self.__current_model = value
+
+            model_path = os.path.join(self.models_dir, "5-essai.hdf5")
+            self.__active_model = load_model(model_path)
+
+    def predict_angle(self, img_arr):
+        img_arr = img_arr/255 - 0.5
+        img_arr = img_arr.reshape((1,) + img_arr.shape)
+        angle_binned = self.__active_model.predict(img_arr)
+        result = angle_binned.argmax()*2/(5-1) - 1, 0
+        return result
 
     def record_images(self):
         while True:
@@ -86,8 +102,8 @@ class Car():
             # We're using a model
             if self.current_model is not None:
                 # Use the prediction
-                print("Predicting stuff...")
-                angle, throttle = (0, 1)
+                angle, _ = self.predict_angle(self.camera.frame)
+                throttle = self.input[1]
             else:
                 angle, throttle = self.input
                 if angle is None or throttle is None:

@@ -60,6 +60,16 @@ def set_model(name):
         print("Switching to {} model".format(name))
         car.current_model = name
 
+@socketio.on("start_pilot")
+def start_pilot():
+    print("Starting motherfucking pilot")
+    car.current_model = "test"
+
+@socketio.on("stop_pilot")
+def stop_pilot():
+    print("Stopping motherfucking pilot")
+    car.current_model = None
+
 def on_healthcheck_too_long():
     print("Healcheck delay exceeded! Stopping...")
     car.is_recording = False
