@@ -13,7 +13,7 @@ class Car():
         self.__is_recording = False
         self.__current_model = None
 
-        self.is_driving = False
+        self.is_driving = True
         self.camera = camera
         self.controller = controller
         self.current_index = None

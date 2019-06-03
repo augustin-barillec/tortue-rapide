@@ -19,6 +19,8 @@ class Controller:
         self.pwm = Adafruit_PCA9685.PCA9685()
         self.pwm.set_pwm_freq(60)
 
+        self.counter = 0
+
     def set_pulses(self, input_):
         angle, throttle = input_
 
@@ -35,7 +37,7 @@ class Controller:
             MAX_LEFT, MAX_RIGHT
         )
 
-        print("set_steer: channel={}, pulse={}".format(self.steer_channel, pulse))
+        # print("set_steer: channel={}, pulse={}".format(self.steer_channel, pulse))
         self.pwm.set_pwm(self.steer_channel, 0, pulse)
 
     def set_throttle(self, throttle):
@@ -48,7 +50,12 @@ class Controller:
                                          -1, 0,
                                          MIN_THROTTLE, ZERO_THROTTLE)
 
-        print("set_throttle: channel={}, pulse={}".format(self.steer_channel, pulse))
+        if self.counter == 15:
+            print("input throttle: {}".format(throttle))
+            print("set_throttle: channel={}, pulse={}".format(self.steer_channel, pulse))
+            self.counter = 0
+        else:
+            self.counter += 1
         self.pwm.set_pwm(self.throttle_channel, 0, pulse)
 
     def stop(self):
