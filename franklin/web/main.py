@@ -76,6 +76,14 @@ def on_healthcheck_too_long():
     car.is_recording = False
 
 if __name__ == '__main__':
+    print("Loading model...")
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    models_dir = os.path.join(current_dir, "models")
+    model_path = os.path.join(models_dir, "5-essai.hdf5")
+    model = load_model(model_path)
+
+    print("Model loaded...")
+
     # Set up camera
     camera = Camera()
     # Wait a bit to ensure that the camera started
@@ -90,10 +98,5 @@ if __name__ == '__main__':
     # Set up health check timer
     healthcheck_delay = 2
     keep_alive_timer = KeepAliveTimer(healthcheck_delay, on_healthcheck_too_long)
-
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    models_dir = os.path.join(current_dir, "models")
-    model_path = os.path.join(models_dir, "5-essai.hdf5")
-    model = load_model(model_path) 
 
     socketio.run(app, host="0.0.0.0", port=5000)
