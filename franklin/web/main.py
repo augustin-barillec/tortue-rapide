@@ -12,6 +12,7 @@ from camera import Camera
 from Controller import Controller
 
 from utils.KeepAliveTimer import KeepAliveTimer
+from tensorflow.python.keras.models import load_model
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -63,7 +64,7 @@ def set_model(name):
 @socketio.on("start_pilot")
 def start_pilot():
     print("Starting motherfucking pilot")
-    car.current_model = "test"
+    car.current_model = model
 
 @socketio.on("stop_pilot")
 def stop_pilot():
@@ -89,5 +90,10 @@ if __name__ == '__main__':
     # Set up health check timer
     healthcheck_delay = 2
     keep_alive_timer = KeepAliveTimer(healthcheck_delay, on_healthcheck_too_long)
+
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    models_dir = os.path.join(current_dir, "models")
+    model_path = os.path.join(models_dir, "5-essai.hdf5")
+    model = load_model(model_path) 
 
     socketio.run(app, host="0.0.0.0", port=5000)

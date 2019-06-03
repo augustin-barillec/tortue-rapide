@@ -53,16 +53,8 @@ class Car():
 
     @current_model.setter
     def current_model(self, value):
-        if value is None:
-            self.__current_model = None
-            self.active_model = None
-        else:
-            self.is_driving = False
-            self.__current_model = value
-
-            model_path = os.path.join(self.models_dir, "5-essai.hdf5")
-            self.active_model = load_model(model_path)
-            self.is_driving = True
+        self.active_model = value
+            
 
     def predict_angle(self, img_arr):
         img_arr = img_arr/255 - 0.5
