@@ -13,7 +13,7 @@ class Car():
         self.input = (None, None)
         self.__is_recording = False
         self.__current_model = None
-
+        self.active_model = None
         self.is_driving = True
         self.camera = camera
         self.controller = controller
@@ -55,17 +55,19 @@ class Car():
     def current_model(self, value):
         if value is None:
             self.__current_model = None
-            self.__active_model = None
+            self.active_model = None
         else:
+            self.is_driving = False
             self.__current_model = value
 
             model_path = os.path.join(self.models_dir, "5-essai.hdf5")
-            self.__active_model = load_model(model_path)
+            self.active_model = load_model(model_path)
+            self.is_driving = True
 
     def predict_angle(self, img_arr):
         img_arr = img_arr/255 - 0.5
         img_arr = img_arr.reshape((1,) + img_arr.shape)
-        angle_binned = self.__active_model.predict(img_arr)
+        angle_binned = self.active_model.predict(img_arr)
         result = angle_binned.argmax()*2/(5-1) - 1, 0
         return result
 
