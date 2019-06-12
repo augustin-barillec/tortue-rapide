@@ -35,8 +35,8 @@ class Angle5FlipSharpThrottleOn:
                 throttle*= pond
         if throttle>1:
             throttle=1
-        if throttle < 0.4:
-            throttle = 0.4
+        if throttle < 0.7:
+            throttle = 0.7
         self.last_throttle = throttle
         return angle, throttle
 
