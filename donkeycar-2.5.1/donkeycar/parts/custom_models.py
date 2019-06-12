@@ -38,7 +38,7 @@ class Angle5FlipSharpThrottleOn:
         if throttle < 0.7:
             throttle = 0.7
         self.last_throttle = throttle
-        return angle, throttle
+        return angle, 1
 
 
 class Angle5ifelse:
