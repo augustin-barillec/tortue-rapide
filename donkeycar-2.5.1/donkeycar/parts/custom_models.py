@@ -23,7 +23,7 @@ class Angle5FlipSharpThrottleOn:
         angle_binned = self.model.predict(img_arr)
         angle, throttle = angle_binned.argmax() * 2 / (5 - 1) - 1,self.last_throttle
         if abs(angle) == 1:
-            self.last_decisions.append(0.98)
+            self.last_decisions.append(0.99)
         elif angle == 0:
             self.last_decisions.append(1.005)
         else:
@@ -38,7 +38,7 @@ class Angle5FlipSharpThrottleOn:
         if throttle < 0.7:
             throttle = 0.7
         self.last_throttle = throttle
-        return angle, 1
+        return angle, throttle
 
 
 class Angle5ifelse:
