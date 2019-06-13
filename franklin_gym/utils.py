@@ -1,9 +1,9 @@
 
 import json
-import os
 from PIL import Image
 import numpy as np
 import os
+import random
 from glob import glob
 from imageio import imread
 
@@ -395,9 +395,23 @@ def generate_horizontal_flip(X, Y, proportion=1):
     X_aug = np.empty((int(X.shape[0] * proportion), X.shape[1], X.shape[2], X.shape[3])).astype(np.uint8)
     Y_aug = np.empty((int(Y.shape[0] * proportion), Y.shape[1]), dtype=float)
     for i, index in enumerate(indexes):
-        # Apply the desired transformation
         im, angle = horizontal_flip(X[index], Y[index])
         Y_aug[i] = angle
         X_aug[i] = im
 
     return X_aug, Y_aug
+
+def horizontal_flip_inplace(X, Y, proportion=.2):
+    """Horizontaly flip a batch of images and samples
+
+    :param X: np.array
+    :param Y: np.array
+    :param proportion: float [0, 1]
+    :return: (X_aug, Y_aug): flipped np.arrays
+    """
+    indexes = random.sample(range(0, X.shape[0]), int(X.shape[0] * proportion))
+
+    for index in indexes:
+        X[index], Y[index] = horizontal_flip(X[index], Y[index])
+
+    return X, Y
