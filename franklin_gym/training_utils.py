@@ -172,98 +172,6 @@ def generate_verified_tub_from_indexes(original_tub_path, new_tub_path, verified
                 shutil.copy(record, new_tub_path)
 
 
-def generate_npy_tub_from_original(tub_path, n_classes=3):
-    '''
-    Generate numpy array format images from original tub format and save them in ../npy_format/{tub_name}
-    relative path from tub_path (as is in google drive folder)
-
-    tub_path: str
-    '''
-    from imageio import imread
-
-    tub_path = os.path.normpath(tub_path)
-
-    jpg_files = glob(os.path.join(tub_path, '*.jpg'))
-    json_files = glob(os.path.join(tub_path, '*.json'))
-
-    new_tub_path = os.path.abspath(os.path.join(tub_path, '../../npy_format', os.path.basename(tub_path)))
-
-    if not os.path.exists(new_tub_path):
-        os.makedirs(new_tub_path)
-
-    for jpg_file in jpg_files:
-        idx = os.path.basename(jpg_file).split('_')[0]
-        record_file = os.path.join(tub_path, 'record_' + idx + '.json')
-
-        x = np.array(imread(jpg_file, format='jpg'))
-
-        with open(record_file, 'r') as f:
-            record = json.load(f)
-            y_angle = record['user/angle']
-            # y_throttle = append(record['user/throttle'])
-
-        y = linear_bin(y_angle, n_classes)
-
-        np.save(file=os.path.join(new_tub_path, 'X_' + idx), arr=x)
-        np.save(file=os.path.join(new_tub_path, 'y_' + idx), arr=y)
-
-
-class TubTo3DGenerator(Sequence):
-    '''
-    Construct Keras Data generator that export 3D images batches for tortue-rapide 3D convnet training
-    '''
-
-    def __init__(self, tub_path, batch_size, frames_per_stack, dim=(120, 160), n_classes=3, shuffle=False,
-                 frame_jump=1):
-        self.tub_path = os.path.normpath(tub_path)
-        self.imgs = glob(os.path.join(self.tub_path, '*_cam-image_array_.jpg'))
-        self.records = glob(os.path.join(self.tub_path, 'record_*.json'))
-        self.imgs.sort(key=lambda x: int(os.path.basename(x).split('_')[0]))
-        self.records.sort(key=lambda x: int(os.path.basename(x).split('_')[1].split('.')[0]))
-        self.frames_per_stack = frames_per_stack
-        self.stack_idx = [n + frames_per_stack * frame_jump for n in list(range(len(self.imgs) - frames_per_stack))]
-        self.batch_size = batch_size
-        self.dim = dim
-        self.n_channels = 3
-        self.n_classes = n_classes
-        self.shuffle = shuffle
-        self.frame_jump = frame_jump
-        self.on_epoch_end()
-
-    def __len__(self):
-        'Return nb of batches per epoch'
-        return int(1 + (len(self.x) / self.batch_size))
-
-    def __getitem__(self, batch_idx):
-        'Return batch of images'
-        indexes = self.indexes[batch_idx * self.batch_size:(batch_idx + 1) * self.batch_size]
-
-        return self.__data_generation(indexes)
-
-    def on_epoch_end(self):
-        'Updates indexes after each epoch'
-        self.indexes = np.array(self.stack_idx)
-        if self.shuffle == True:
-            np.random.shuffle(self.indexes)
-
-    def __data_generation(self, indexes):
-        'Generate one batch numpy arrays from tub files and batch index'
-        X = np.empty((self.batch_size, self.frames_per_stack, *self.dim, self.n_channels))
-        y = np.empty((self.batch_size, self.n_classes))
-
-        for i, idx in enumerate(indexes):
-            # Store class
-            with open(self.records[idx], 'r') as f:
-                record = json.load(f)
-                y[i] = linear_bin(float(record['user/angle']), self.n_classes)
-                # y_throttle = append(record['user/throttle'])
-
-            for j, frame in enumerate(range(self.frames_per_stack)):
-                # Store sample
-                X[i][j] = np.array(imread(self.imgs[idx - (frame * self.frame_jump)], format='jpg'))
-
-        return X, y
-
 
 def dispath_samples(tub_path, training_folder, X, Y):
     """
@@ -401,7 +309,7 @@ def generate_horizontal_flip(X, Y, proportion=1):
 
     return X_aug, Y_aug
 
-def horizontal_flip_inplace(X, Y, proportion=.2):
+def horizontal_flip_inplace(X, Y, proportion=.3):
     """Horizontaly flip a batch of images and samples
 
     :param X: np.array
