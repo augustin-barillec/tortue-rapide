@@ -63,6 +63,7 @@ class Angle5ifelse:
             throttle = 0.6
         elif 0.6 <= angle:
             throttle = 0.5
+
         return angle, throttle
 
 
@@ -75,17 +76,16 @@ class Angle3ifelse:
         img_arr = img_arr / 255 - 0.5
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         angle_binned = self.model.predict(img_arr)
-        angle = angle_binned.argmax() * 2 / (3 - 1) - 1
+        index_max = angle_binned.argmax()
 
-        throttle = 0
-        if angle < -0.6:
+        if index_max == 0:
+            angle = -1
             throttle = 0.5
-        elif -0.6 <= angle < -0.2:
-            throttle = 0.6
-        elif -0.2 <= angle < 0.2:
+        elif index_max == 1:
+            angle = 0
             throttle = 1
-        elif 0.2 <= angle < 0.6:
-            throttle = 0.6
-        elif 0.6 <= angle:
+        else:
+            angle = 1
             throttle = 0.5
+
         return angle, throttle

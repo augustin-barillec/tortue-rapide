@@ -74,7 +74,7 @@ def drive(cfg, model_path=None):
         model = load_model(model_path)
         model_basename = os.path.basename(model_path)
         model_type = model_basename[0]
-        model_class = getattr(model_dict, model_type)
+        model_class = model_dict[model_type]
         model_instance = model_class(model=model)
 
         V.add(model_instance, inputs=['cam/image_array'],
