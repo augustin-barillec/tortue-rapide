@@ -300,7 +300,7 @@ def generate_horizontal_flip(X, Y, proportion=1):
     # Generate a random selection of indexes
     indexes = random.sample(range(0, X.shape[0]), int(X.shape[0] * proportion))
 
-    X_aug = np.empty((int(X.shape[0] * proportion), X.shape[1], X.shape[2], X.shape[3])).astype(np.uint8)
+    X_aug = np.empty((int(X.shape[0] * proportion), *X.shape[1:])).astype(np.uint8)
     Y_aug = np.empty((int(Y.shape[0] * proportion), Y.shape[1]), dtype=float)
     for i, index in enumerate(indexes):
         im, angle = horizontal_flip(X[index], Y[index])
@@ -317,9 +317,12 @@ def horizontal_flip_inplace(X, Y, proportion=.3):
     :param proportion: float [0, 1]
     :return: (X_aug, Y_aug): flipped np.arrays
     """
+    X_aug = np.copy(X)
+    Y_aug = np.copy(Y)
+
     indexes = random.sample(range(0, X.shape[0]), int(X.shape[0] * proportion))
 
     for index in indexes:
-        X[index], Y[index] = horizontal_flip(X[index], Y[index])
+        X_aug[index], Y_aug[index] = horizontal_flip(X[index], Y[index])
 
-    return X, Y
+    return X_aug, Y_aug
