@@ -23,9 +23,9 @@ from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.datastore import TubWriter
 from donkeycar.parts.controller import LocalWebController
 from donkeycar.parts.clock import Timestamp
-from donkeycar.parts.custom_models import Angle5FlipSharpThrottleOn, Angle5ifelse
+from donkeycar.parts.custom_models import Angle5FlipSharpThrottleOn, Angle5ifelse, Angle3ifelse
 
-model_dict = {'A': Angle5ifelse, 'B': Angle5FlipSharpThrottleOn}
+model_dict = {'A': Angle5ifelse, 'B': Angle5FlipSharpThrottleOn, 'R': Angle3ifelse}
 
 
 from tensorflow.python.keras.models import load_model
