@@ -2,7 +2,7 @@ from tensorflow.python.keras.utils import Sequence
 
 import numpy as np
 
-from utils import horizontal_flip_inplace
+from training_utils import horizontal_flip_inplace
 
 class TortueInMemoryGenerator(Sequence):
     'Construct data iterator for in memory training that handle on the fly data augmentation with albumentations'

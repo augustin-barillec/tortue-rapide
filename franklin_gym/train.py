@@ -3,8 +3,8 @@ from tensorflow.python.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 from model import default_categorical
 
-from utils import newtub_to_array
-from ram_sequence import TortueRapideSequence
+from training_utils import newtub_to_array
+from generators import TortueInMemoryGenerator
 
 save_model_path = '/home/projects/tortue-rapide/franklin_gym/test_models'
 
@@ -37,11 +37,11 @@ batch_size=64
 
 # train / validation split
 X_train, Y_train = newtub_to_array('/home/data/tortue-rapide/sets/raw/ysance_abbey_epingle_20190513/', n_class=3)
-train_gen = TortueRapideSequence(X_train, Y_train, batch_size, augmentations=AUGMENTATIONS_TRAIN)
+train_gen = TortueInMemoryGenerator(X_train, Y_train, batch_size, augmentations=AUGMENTATIONS_TRAIN, flip_proportion=.3)
 
 # Validation data
 X_val, Y_val = newtub_to_array('/home/data/tortue-rapide/sets/raw/lesquare_NECTAR_20190518', n_class=3)
-valid_gen = TortueRapideSequence(X_val, Y_val, batch_size, augmentations=AUGMENTATIONS_TEST)
+valid_gen = TortueInMemoryGenerator(X_val, Y_val, batch_size, augmentations=AUGMENTATIONS_TEST, flip_proportion=.3)
 
 
 # checkpoint to save model after each epoch
