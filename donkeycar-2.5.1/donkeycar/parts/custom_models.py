@@ -80,12 +80,12 @@ class Angle3ifelse:
 
         if index_max == 0:
             angle = -1
-            throttle = 0.5
+            throttle = 0.9
         elif index_max == 1:
             angle = 0
             throttle = 1
         else:
             angle = 1
-            throttle = 0.5
+            throttle = 0.9
 
         return angle, throttle
