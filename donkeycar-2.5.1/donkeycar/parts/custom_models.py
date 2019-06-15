@@ -54,7 +54,7 @@ class Angle5ifelse:
 
         throttle = 0
         if angle < -0.6:
-            throttle = 0.7
+            throttle = 0.8
         elif -0.6 <= angle < -0.2:
             throttle = 0.9
         elif -0.2 <= angle < 0.2:
@@ -62,7 +62,7 @@ class Angle5ifelse:
         elif 0.2 <= angle < 0.6:
             throttle = 0.9
         elif 0.6 <= angle:
-            throttle = 0.7
+            throttle = 0.8
 
         return angle, throttle
 
