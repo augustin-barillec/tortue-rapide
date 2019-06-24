@@ -1,3 +1,4 @@
+min_turn_penalty = 0.9
 min_uncertainty_penalty = 0.7
 
 
@@ -12,6 +13,16 @@ for i in range(5):
 foreigners_dict = dict()
 for i in range(5):
     foreigners_dict[i] = [j for j in range(5) if j not in neighbours_dict[i]]
+
+
+def turn_penalty(output_keras):
+    i = output_keras.argmax()
+    if i in (0, 4):
+        return min_turn_penalty
+    elif i in (1, 3):
+        return (1+min_turn_penalty)/2
+    else:
+        return 1
 
 
 def uncertainty_penalty(output_keras):
@@ -40,7 +51,7 @@ class Angle52:
     @staticmethod
     def postprocess(output_keras):
         angle = output_keras.argmax() * 2 / (5 - 1) - 1
-        throttle = uncertainty_penalty(output_keras)
+        throttle = turn_penalty(output_keras) * uncertainty_penalty(output_keras)
         return angle, throttle
 
     def run(self, img_arr):
