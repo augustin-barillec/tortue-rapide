@@ -8,7 +8,7 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 
 from Car import Car
-# from Camera import Camera
+from Camera import Camera
 from Controller import Controller
 
 from utils.KeepAliveTimer import KeepAliveTimer
