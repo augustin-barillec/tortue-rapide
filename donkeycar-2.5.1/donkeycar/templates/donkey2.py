@@ -23,15 +23,13 @@ from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.datastore import TubWriter
 from donkeycar.parts.controller import LocalWebController
 from donkeycar.parts.clock import Timestamp
-from donkeycar.parts.custom_models import Angle5FlipSharpThrottleOn, Angle5ifelse, Angle3ifelse
-
-model_dict = {'A': Angle5ifelse, 'B': Angle5FlipSharpThrottleOn, 'R': Angle3ifelse}
-
-
 from tensorflow.python.keras.models import load_model
 
 
-def drive(cfg, model_path=None):
+from donkeycar.parts import models
+
+
+def drive(cfg, model_path=None, model_class_name=None):
     """
     Construct a working robotic vehicle from many parts.
     Each part runs as a job in the Vehicle loop, calling either
@@ -72,15 +70,27 @@ def drive(cfg, model_path=None):
     # Run the pilot if the mode is not user.
     if model_path:
         model = load_model(model_path)
-        model_basename = os.path.basename(model_path)
-        model_type = model_basename[0]
-        model_class = model_dict[model_type]
+        model_class = getattr(models, model_class_name)
         model_instance = model_class(model=model)
 
         V.add(model_instance, inputs=['cam/image_array'],
-                              outputs=['pilot/angle', 'pilot/throttle'],
+                              outputs=['pilot/angle1', 'pilot/throttle1'],
                               run_condition='run_pilot')
-    else:
+
+
+        def garde_fou_part(pilot_angle1, pilot_throttle1):
+            pilot_angle = pilot_angle1
+            pilot_throttle = min(1, pilot_throttle1)
+            pilot_throttle = max(0, pilot_throttle)
+            return pilot_angle, pilot_throttle
+
+
+        V.add(garde_fou_part,
+              inputs=['pilot/angle1', 'pilot/throttle1'],
+              outputs=['pilot/angle1', 'pilot/throttle1'])
+
+
+        else:
         # add tub to save data
         inputs = ['cam/image_array', 'user/angle', 'user/throttle', 'user/mode', 'timestamp']
         types = ['image_array', 'float', 'float', 'str', 'str']
@@ -130,7 +140,7 @@ if __name__ == '__main__':
     cfg = dk.load_config()
 
     if args['drive']:
-        drive(cfg, model_path=args['--model'])
+        drive(cfg, model_path=args['--model_path'], model_class_name=args['--model_class_name'])
 
 
 
