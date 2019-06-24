@@ -47,8 +47,6 @@ $(document).ready(function () {
       return;
     }
 
-    console.log(pad.axes)
-
     if(isRecording) {
       throttle = -pad.axes[1];
       angle = pad.axes[2];
