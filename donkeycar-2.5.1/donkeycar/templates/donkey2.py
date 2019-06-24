@@ -82,16 +82,18 @@ def drive(cfg, model_path=None, model_class_name=None):
                               run_condition='run_pilot')
 
 
-        def garde_fou_part(pilot_angle1, pilot_throttle1):
+        def garde_fou(pilot_angle1, pilot_throttle1):
             pilot_angle = pilot_angle1
             pilot_throttle = min(1, pilot_throttle1)
             pilot_throttle = max(0, pilot_throttle)
             return pilot_angle, pilot_throttle
 
 
-        V.add(garde_fou_part,
+        garde_fou_pat = Lambda(garde_fou)
+
+        V.add(garde_fou_pat,
               inputs=['pilot/angle1', 'pilot/throttle1'],
-              outputs=['pilot/angle1', 'pilot/throttle1'])
+              outputs=['pilot/angle', 'pilot/throttle'])
 
 
     else:
@@ -149,8 +151,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_class_name', required=True, type=str)
     args = parser.parse_args()
 
-    if args['drive']:
-        drive(cfg, model_path=args.model_path, model_class_name=args.model_class_name)
+    drive(cfg, model_path=args.model_path, model_class_name=args.model_class_name)
 
 
 

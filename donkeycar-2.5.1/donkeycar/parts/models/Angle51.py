@@ -13,8 +13,8 @@ def turn_penalty(output_keras):
 
 
 def uncertainty_penalty(output_keras):
-    m = max(output_keras)
-    return m*(1-min_turn_penalty) + min_turn_penalty
+    m = max(output_keras[0])
+    return m*(1-min_uncertainty_penalty) + min_uncertainty_penalty
 
 
 class Angle51:
