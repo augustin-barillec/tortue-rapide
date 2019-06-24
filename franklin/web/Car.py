@@ -6,15 +6,16 @@ from threading import Thread
 
 import numpy as np
 from PIL import Image
+from tensorflow.python.keras.models import load_model
 
-BASE_RATE = 50 # The base rate threads, in milliseconds (1 drive decision, 1 record)
+BASE_RATE = 50 # The base rate for all threads, in milliseconds (1 drive decision, 1 record)
 
 class Car():
     def __init__(self, camera, controller):
         self.input = (None, None)
         self.__is_recording = False
-        self.__current_model = None
-        self.active_model = None
+        self.__model_path = None
+        self.__model = None
         self.is_driving = True
         self.camera = camera
         self.controller = controller
@@ -49,12 +50,29 @@ class Car():
         self.__is_recording = value
 
     @property
-    def current_model(self):
-        return self.__current_model
+    def model_path(self):
+        return self.__model_path
 
-    @current_model.setter
-    def current_model(self, value):
-        self.__current_model = value
+    @model_path.setter
+    def model_path(self, value):
+        """The path of the model file to use, also loads the model"""
+
+        # When "unsetting" the current model used, just set all to None to be garbage collected
+        if value is None:
+            self.__model_path = None
+            self.__model = None
+        else:
+            # Stop all running threads, or the model load takes ages (all other actions too)
+            self.stop_all()
+
+            print("Loading model...")
+            model = load_model(value)
+            print("Model loaded...")
+
+            self.__model = model
+            self.__model_path = value
+
+            self.start_all()
             
     def start_all(self):
         """Starts all the threads of all the different car parts."""
@@ -74,7 +92,7 @@ class Car():
         img_arr = np.uint8(img_arr)
         img_arr = img_arr/255 - 0.5
         img_arr = img_arr.reshape((1,) + img_arr.shape)
-        angle_binned = self.current_model.predict(img_arr)
+        angle_binned = self.__model.predict(img_arr)
         result = angle_binned.argmax()*2/(5-1) - 1, 0
         return result
 
@@ -99,10 +117,6 @@ class Car():
 
             self.sleep_to_rate(start_time, BASE_RATE)
 
-            # sleep_time = (50/1000) - (time.time() - start_time)
-            # if sleep_time > 0.0:
-            #     time.sleep(sleep_time)
-
     def drive(self):
         while True:
             if not self.is_driving:
@@ -111,7 +125,7 @@ class Car():
             start_time = time.time()
 
             # We're using a model
-            if self.current_model is not None:
+            if self.model_path is not None:
                 # Use the prediction for the angle
                 angle, _ = self.predict_angle(self.camera.frame)
                 throttle = self.input[1]
@@ -125,9 +139,6 @@ class Car():
             self.controller.set_pulses((angle, throttle))
 
             self.sleep_to_rate(start_time, BASE_RATE)
-            # sleep_time = (50/1000) - (time.time() - start_time)
-            # if sleep_time > 0.0:
-            #     time.sleep(sleep_time)
     
     def sleep_to_rate(self, start_time, rate_milliseconds):
         """Sleeps to respect the specified rate, if needed."""

@@ -67,12 +67,14 @@ def set_model(name):
 
 @socketio.on("start_pilot")
 def start_pilot():
-    print("Starting motherfucking pilot")
-    # car.current_model = model
+    print("Starting autopilot")
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    models_dir = os.path.join(current_dir, "models")
+    car.model_path = os.path.join(models_dir, "5-essai.hdf5")
 
 @socketio.on("stop_pilot")
 def stop_pilot():
-    print("Stopping motherfucking pilot")
+    print("Stopping autopilot")
     car.current_model = None
 
 def on_healthcheck_too_long():
@@ -80,14 +82,6 @@ def on_healthcheck_too_long():
     car.is_recording = False
 
 if __name__ == '__main__':
-    print("Loading model...")
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    models_dir = os.path.join(current_dir, "models")
-    model_path = os.path.join(models_dir, "5-essai.hdf5")
-    model = load_model(model_path)
-
-    print("Model loaded...")
-
     # Set up camera
     camera = Camera()
     # Wait a bit to ensure that the camera started
