@@ -17,16 +17,29 @@ class Camera():
                                                      use_video_port=True)
 
         self.frame = None
-
+        self.run = True
+        
         print('Camera started, warming up...')
         time.sleep(2)
 
-        self.thread = Thread(target=self.run)
+        self.thread = Thread(target=self.consume)
         self.thread.start()
 
-    def run(self):
+    def consume(self):
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
             # preparation for the next frame
             self.frame = f.array
             self.rawCapture.truncate(0)
+            
+            if not self.run:
+                break
+
+    # def shutdown(self):
+    #     # indicate that the thread should be stopped
+    #     self.on = False
+    #     print('stoping PiCamera')
+    #     time.sleep(.5)
+    #     self.stream.close()
+    #     self.rawCapture.close()
+    #     self.camera.close()

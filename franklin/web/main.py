@@ -20,7 +20,7 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.WARNING)
+# log.setLevel(logging.WARNING)
 
 @app.route('/')
 def main():
@@ -68,7 +68,9 @@ def set_model(name):
 @socketio.on("start_pilot")
 def start_pilot():
     print("Starting autopilot")
-    car.autopilot = True
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    models_dir = os.path.join(current_dir, "models")
+    car.model_path = os.path.join(models_dir, "5-essai.hdf5")
 
 @socketio.on("stop_pilot")
 def stop_pilot():
@@ -94,7 +96,7 @@ if __name__ == '__main__':
     controller = Controller()
 
     # Set up recording
-    car = Car(camera, controller, model=model)
+    car = Car(camera, controller)
 
     # Set up health check timer
     healthcheck_delay = 2
