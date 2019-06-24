@@ -20,6 +20,9 @@ class Car():
         self.current_index = None
         self.run = True
 
+        self.__model_path = None
+        self.__model = None
+
         current_dir = os.path.abspath(os.path.dirname(__file__))
         self.images_dir = os.path.join(current_dir, "images")
         self.models_dir = os.path.join(current_dir, "models")
@@ -80,6 +83,10 @@ class Car():
         self.run = True
         self.camera.run = True
 
+        self.drive_thread = Thread(target=self.drive)
+        self.record_thread = Thread(target=self.record_images)
+        self.camera.thread = Thread(target=self.camera.consume)
+        
         self.drive_thread.start()
         self.record_thread.start()
         self.camera.thread.start()
