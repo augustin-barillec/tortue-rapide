@@ -11,11 +11,11 @@ from tensorflow.python.keras.models import load_model
 BASE_RATE = 50 # The base rate for all threads, in milliseconds (1 drive decision, 1 record)
 
 class Car():
-    def __init__(self, camera, controller):
+    def __init__(self, camera, controller, model=None):
         self.input = (None, None)
         self.__is_recording = False
-        self.__model_path = None
-        self.__model = None
+        self.__model = model
+        self.autopilot = False
         self.is_driving = True
         self.camera = camera
         self.controller = controller
@@ -49,30 +49,30 @@ class Car():
         self.current_index = self.get_last_index()
         self.__is_recording = value
 
-    @property
-    def model_path(self):
-        return self.__model_path
+    # @property
+    # def model_path(self):
+    #     return self.__model_path
 
-    @model_path.setter
-    def model_path(self, value):
-        """The path of the model file to use, also loads the model"""
+    # @model_path.setter
+    # def model_path(self, value):
+    #     """The path of the model file to use, also loads the model"""
 
-        # When "unsetting" the current model used, just set all to None to be garbage collected
-        if value is None:
-            self.__model_path = None
-            self.__model = None
-        else:
-            # Stop all running threads, or the model load takes ages (all other actions too)
-            self.stop_all()
+    #     # When "unsetting" the current model used, just set all to None to be garbage collected
+    #     if value is None:
+    #         self.__model_path = None
+    #         self.__model = None
+    #     else:
+    #         # Stop all running threads, or the model load takes ages (all other actions too)
+    #         self.stop_all()
 
-            print("Loading model...")
-            model = load_model(value)
-            print("Model loaded...")
+    #         print("Loading model...")
+    #         model = load_model(value)
+    #         print("Model loaded...")
 
-            self.__model = model
-            self.__model_path = value
+    #         self.__model = model
+    #         self.__model_path = value
 
-            self.start_all()
+    #         self.start_all()
             
     def start_all(self):
         """Starts all the threads of all the different car parts."""
@@ -125,7 +125,7 @@ class Car():
             start_time = time.time()
 
             # We're using a model
-            if self.model_path is not None:
+            if self.autopilot and self.__model is not None:
                 # Use the prediction for the angle
                 angle, _ = self.predict_angle(self.camera.frame)
                 throttle = self.input[1]

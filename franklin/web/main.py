@@ -68,20 +68,23 @@ def set_model(name):
 @socketio.on("start_pilot")
 def start_pilot():
     print("Starting autopilot")
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    models_dir = os.path.join(current_dir, "models")
-    car.model_path = os.path.join(models_dir, "5-essai.hdf5")
+    car.autopilot = True
 
 @socketio.on("stop_pilot")
 def stop_pilot():
     print("Stopping autopilot")
-    car.current_model = None
+    car.autopilot = False
 
 def on_healthcheck_too_long():
     print("Healcheck delay exceeded! Stopping...")
     car.is_recording = False
 
 if __name__ == '__main__':
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    models_dir = os.path.join(current_dir, "models")
+    model_path = os.path.join(models_dir, "5-essai.hdf5")
+    model = load_model(model_path)
+
     # Set up camera
     camera = Camera()
     # Wait a bit to ensure that the camera started
@@ -91,7 +94,7 @@ if __name__ == '__main__':
     controller = Controller()
 
     # Set up recording
-    car = Car(camera, controller)
+    car = Car(camera, controller, model=model)
 
     # Set up health check timer
     healthcheck_delay = 2
