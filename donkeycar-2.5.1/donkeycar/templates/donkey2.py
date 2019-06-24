@@ -29,6 +29,10 @@ from tensorflow.python.keras.models import load_model
 from donkeycar.parts import models
 
 
+
+
+
+
 def drive(cfg, model_path=None, model_class_name=None):
     """
     Construct a working robotic vehicle from many parts.
@@ -90,7 +94,7 @@ def drive(cfg, model_path=None, model_class_name=None):
               outputs=['pilot/angle1', 'pilot/throttle1'])
 
 
-        else:
+    else:
         # add tub to save data
         inputs = ['cam/image_array', 'user/angle', 'user/throttle', 'user/mode', 'timestamp']
         types = ['image_array', 'float', 'float', 'str', 'str']
@@ -136,11 +140,17 @@ def drive(cfg, model_path=None, model_class_name=None):
 
 
 if __name__ == '__main__':
-    args = docopt(__doc__)
     cfg = dk.load_config()
 
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_path', required=True, type=str)
+    parser.add_argument('--model_class_name', required=True, type=str)
+    args = parser.parse_args()
+
     if args['drive']:
-        drive(cfg, model_path=args['--model_path'], model_class_name=args['--model_class_name'])
+        drive(cfg, model_path=args.model_path, model_class_name=args.model_class_name)
 
 
 
