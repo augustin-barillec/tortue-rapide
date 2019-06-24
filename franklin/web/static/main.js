@@ -47,9 +47,11 @@ $(document).ready(function () {
       return;
     }
 
+    console.log(pad.axes)
+
     if(isRecording) {
-      throttle = -pad.axes[0];
-      angle = pad.axes[3];
+      throttle = -pad.axes[1];
+      angle = pad.axes[2];
       socket.emit("gamepad_input", angle, throttle);
     }
     

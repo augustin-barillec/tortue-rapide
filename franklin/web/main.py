@@ -7,12 +7,14 @@ from threading import Thread
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 
-from car import Car
-from camera import Camera
+from Car import Car
+# from Camera import Camera
 from Controller import Controller
 
 from utils.KeepAliveTimer import KeepAliveTimer
 from tensorflow.python.keras.models import load_model
+
+from unittest.mock import Mock
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -54,17 +56,19 @@ def gamepad_out():
 
 @socketio.on("set_model")
 def set_model(name):
+    car.stop_all()
     if name == "":
         print("Switching to human mode")
         car.current_model = None
     else:
         print("Switching to {} model".format(name))
         car.current_model = name
+    car.start_all()
 
 @socketio.on("start_pilot")
 def start_pilot():
     print("Starting motherfucking pilot")
-    car.current_model = model
+    # car.current_model = model
 
 @socketio.on("stop_pilot")
 def stop_pilot():

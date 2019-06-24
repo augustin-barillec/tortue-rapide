@@ -6,7 +6,8 @@ from threading import Thread
 
 import numpy as np
 from PIL import Image
-from tensorflow.python.keras.models import load_model
+
+BASE_RATE = 50 # The base rate threads, in milliseconds (1 drive decision, 1 record)
 
 class Car():
     def __init__(self, camera, controller):
@@ -55,6 +56,19 @@ class Car():
     def current_model(self, value):
         self.__current_model = value
             
+    def start_all(self):
+        """Starts all the threads of all the different car parts."""
+        
+        self.drive_thread.start()
+        self.record_thread.start()
+        self.camera.thread.start()
+
+    def stop_all(self):
+        """Stops the threads of all the different car parts."""
+
+        self.drive_thread.join()
+        self.record_thread.join()
+        self.camera.thread.join()
 
     def predict_angle(self, img_arr):
         img_arr = np.uint8(img_arr)
@@ -83,9 +97,11 @@ class Car():
             
             self.save_image(self.camera.frame, file_name)
 
-            sleep_time = (50/1000) - (time.time() - start_time)
-            if sleep_time > 0.0:
-                time.sleep(sleep_time)
+            self.sleep_to_rate(start_time, BASE_RATE)
+
+            # sleep_time = (50/1000) - (time.time() - start_time)
+            # if sleep_time > 0.0:
+            #     time.sleep(sleep_time)
 
     def drive(self):
         while True:
@@ -96,20 +112,29 @@ class Car():
 
             # We're using a model
             if self.current_model is not None:
-                # Use the prediction
+                # Use the prediction for the angle
                 angle, _ = self.predict_angle(self.camera.frame)
                 throttle = self.input[1]
+            # We're not using a model
             else:
+                # Use the inputs
                 angle, throttle = self.input
                 if angle is None or throttle is None:
                     continue
 
             self.controller.set_pulses((angle, throttle))
 
-            sleep_time = (50/1000) - (time.time() - start_time)
-            if sleep_time > 0.0:
-                time.sleep(sleep_time)
-            
+            self.sleep_to_rate(start_time, BASE_RATE)
+            # sleep_time = (50/1000) - (time.time() - start_time)
+            # if sleep_time > 0.0:
+            #     time.sleep(sleep_time)
+    
+    def sleep_to_rate(self, start_time, rate_milliseconds):
+        """Sleeps to respect the specified rate, if needed."""
+        sleep_time = (rate_milliseconds/1000) - (time.time() - start_time)
+        if sleep_time > 0.0:
+            time.sleep(sleep_time)
+
     def save_image(self, image_array, name):
         img = Image.fromarray(np.uint8(image_array))
         img.save(os.path.join(self.images_dir, name))
