@@ -19,7 +19,7 @@ def uncertainty_penalty(output_keras):
     ns = neighbours_dict[am]
     fs = foreigners_dict[am]
 
-    res = sum([output_keras[i] for i in ns]) - sum([output_keras[i] for i in fs])
+    res = sum([output_keras[0][i] for i in ns]) - sum([output_keras[0][i] for i in fs])
     res = max(0, res)
     res = res * (1 - min_uncertainty_penalty) + min_uncertainty_penalty
 
