@@ -11,7 +11,7 @@ for i in range(5):
 
 foreigners_dict = dict()
 for i in range(5):
-    foreigners_dict = [j for j in range(5) if j not in neighbours_dict[i]]
+    foreigners_dict[i] = [j for j in range(5) if j not in neighbours_dict[i]]
 
 
 def uncertainty_penalty(output_keras):
