@@ -6,7 +6,8 @@ from threading import Thread
 
 import numpy as np
 from PIL import Image
-from tensorflow.python.keras.models import load_model
+from tensorflow import get_default_graph
+from tensorflow.python import keras
 
 BASE_RATE = 50 # The base rate for all threads, in milliseconds (1 drive decision, 1 record)
 
@@ -31,6 +32,8 @@ class Car():
         os.makedirs(self.models_dir, exist_ok=True)
         
         self.file_pattern = "image_{index}_{angle}.jpg"
+
+        self.graph = get_default_graph()
 
         self.angle_binned_size = 5
 
@@ -65,7 +68,7 @@ class Car():
 
     @model_path.setter
     def model_path(self, value):
-        # "Unsetting" the model,
+        # "Unsetting" the model
         # set the model to None to go back to manual driving mode
         if value is None:
             self.__model_path = None
@@ -73,12 +76,13 @@ class Car():
         # Setting a model, only when a different model is selected
         elif self.__model_path != value:
             self.__model_path = value
+            self.__load_model = True # The next loop of drive will load the new model
         
             
     def start_all(self):
         """Starts all the threads of all the different car parts."""
         
-        print("Stopping car parts...")
+        print("Starting car parts...")
         self.run = True
         self.camera.run = True
 
@@ -93,7 +97,7 @@ class Car():
     def stop_all(self):
         """Stops the threads of all the different car parts."""
 
-        print("Starting car parts...")
+        print("Stopping car parts...")
         self.run = False
         self.camera.run = False
 
@@ -112,14 +116,10 @@ class Car():
         self.camera.thread.join()
 
         print("Loading model...")
-        model = load_model(self.__model_path)
+        model = keras.models.load_model(self.__model_path)
         print("Model loaded...")
 
         self.__model = model
-
-        # when a model is in use, the record thread become useless,
-        # set it to None so we know it should be started again when needed
-        self.record_thread = None
 
         # Restart the camera thread
         self.camera.thread = Thread(target=self.camera.consume)
@@ -129,12 +129,15 @@ class Car():
         img_arr = np.uint8(img_arr)
         img_arr = img_arr/255 - 0.5
         img_arr = img_arr.reshape((1,) + img_arr.shape)
-        angle_binned = self.__model.predict(img_arr)
-        result = angle_binned.argmax()*2/(5-1) - 1, 0
+
+        with self.graph.as_default():    
+            angle_binned = self.__model.predict(img_arr)
+            result = angle_binned.argmax()*2/(5-1) - 1, 0
+            
         return result
 
     def record_images(self):
-        while self.run:
+        while self.run_record:
             if self.current_index is None:
                 continue
             if not self.is_recording:
@@ -175,6 +178,7 @@ class Car():
                 # Use the inputs
                 angle, throttle = self.input
                 if angle is None or throttle is None:
+                    self.controller.stop()
                     continue
 
             self.controller.set_pulses((angle, throttle))
