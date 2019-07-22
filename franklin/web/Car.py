@@ -168,6 +168,7 @@ class Car():
             start_time = time.time()
 
             if self.__load_model:
+                print("loading model")
                 self.load_model()
                 self.__load_model = False
 
