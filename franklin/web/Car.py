@@ -106,6 +106,8 @@ class Car():
         self.camera.thread.join()
 
     def load_model(self):
+        global get_default_graph
+        
         # Stop the car for safety
         self.controller.stop()
         
