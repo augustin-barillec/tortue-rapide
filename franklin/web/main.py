@@ -82,10 +82,10 @@ def on_healthcheck_too_long():
     car.is_recording = False
 
 if __name__ == '__main__':
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    models_dir = os.path.join(current_dir, "models")
-    model_path = os.path.join(models_dir, "5-essai.hdf5")
-    model = load_model(model_path)
+    # current_dir = os.path.abspath(os.path.dirname(__file__))
+    # models_dir = os.path.join(current_dir, "models")
+    # model_path = os.path.join(models_dir, "5-essai.hdf5")
+    # model = load_model(model_path)
 
     # Set up camera
     camera = Camera()
