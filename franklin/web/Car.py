@@ -74,7 +74,7 @@ class Car():
             self.__model_path = None
             self.__model = None
         # Setting a model, only when a different model is selected
-        elif self.__model_path != value:
+        else:
             self.__model_path = value
             self.__load_model = True # The next loop of drive will load the new model
         
@@ -118,8 +118,6 @@ class Car():
 
         print("Loading model...")
         model = keras.models.load_model(self.__model_path)
-        global graph
-        graph = get_default_graph()
         print("Model loaded...")
 
         self.__model = model
@@ -174,8 +172,9 @@ class Car():
             if self.__model is not None:
                 # Use the prediction for the angle
                 angle, _ = self.predict_angle(self.camera.frame)
-                throttle = self.input[1]
-            # We're not using a model
+                throttle = 1
+                print(angle)
+                # We're not using a model
             else:
                 # Use the inputs
                 angle, throttle = self.input
