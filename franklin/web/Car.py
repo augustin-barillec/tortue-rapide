@@ -118,6 +118,8 @@ class Car():
 
         print("Loading model...")
         model = keras.models.load_model(self.__model_path)
+        global graph
+        graph = get_default_graph()
         print("Model loaded...")
 
         self.__model = model
