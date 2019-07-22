@@ -11,6 +11,8 @@ from tensorflow.python import keras
 
 BASE_RATE = 50 # The base rate for all threads, in milliseconds (1 drive decision, 1 record)
 
+graph = get_default_graph()
+
 class Car():
     def __init__(self, camera, controller):
         self.input = (None, None)
@@ -32,8 +34,6 @@ class Car():
         os.makedirs(self.models_dir, exist_ok=True)
         
         self.file_pattern = "image_{index}_{angle}.jpg"
-
-        self.graph = None
 
         self.angle_binned_size = 5
 
@@ -106,8 +106,7 @@ class Car():
         self.camera.thread.join()
 
     def load_model(self):
-        global get_default_graph
-        
+
         # Stop the car for safety
         self.controller.stop()
         
@@ -119,10 +118,11 @@ class Car():
 
         print("Loading model...")
         model = keras.models.load_model(self.__model_path)
-        self.graph = get_default_graph()
-        self.__model = model
+        global graph
+        graph = get_default_graph()
         print("Model loaded...")
 
+        self.__model = model
 
         # Restart the camera thread
         self.camera.thread = Thread(target=self.camera.consume)
@@ -133,10 +133,9 @@ class Car():
         img_arr = img_arr/255 - 0.5
         img_arr = img_arr.reshape((1,) + img_arr.shape)
 
-        with self.graph.as_default():    
+        with graph.as_default():
             angle_binned = self.__model.predict(img_arr)
             result = angle_binned.argmax()*2/(5-1) - 1, 0
-
         return result
 
     def record_images(self):
