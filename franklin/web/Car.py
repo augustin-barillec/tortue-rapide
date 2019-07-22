@@ -33,7 +33,7 @@ class Car():
         
         self.file_pattern = "image_{index}_{angle}.jpg"
 
-        self.graph = None
+        self.graph = get_default_graph()
 
         self.angle_binned_size = 5
 
@@ -106,8 +106,6 @@ class Car():
         self.camera.thread.join()
 
     def load_model(self):
-        global get_default_graph
-        
         # Stop the car for safety
         self.controller.stop()
         
