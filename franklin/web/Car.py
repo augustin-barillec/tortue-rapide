@@ -33,7 +33,7 @@ class Car():
         
         self.file_pattern = "image_{index}_{angle}.jpg"
 
-        self.graph = get_default_graph()
+        self.graph = None
 
         self.angle_binned_size = 5
 
@@ -117,9 +117,10 @@ class Car():
 
         print("Loading model...")
         model = keras.models.load_model(self.__model_path)
+        self.graph = get_default_graph()
+        self.__model = model
         print("Model loaded...")
 
-        self.__model = model
 
         # Restart the camera thread
         self.camera.thread = Thread(target=self.camera.consume)
@@ -133,7 +134,7 @@ class Car():
         with self.graph.as_default():    
             angle_binned = self.__model.predict(img_arr)
             result = angle_binned.argmax()*2/(5-1) - 1, 0
-            
+
         return result
 
     def record_images(self):
