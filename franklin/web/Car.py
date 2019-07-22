@@ -106,8 +106,6 @@ class Car():
         self.camera.thread.join()
 
     def load_model(self):
-        global graph
-        graph = get_default_graph()
 
         # Stop the car for safety
         self.controller.stop()
@@ -120,6 +118,8 @@ class Car():
 
         print("Loading model...")
         model = keras.models.load_model(self.__model_path)
+        global graph
+        graph = get_default_graph()
         print("Model loaded...")
 
         self.__model = model
