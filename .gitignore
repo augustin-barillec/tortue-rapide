@@ -1,2 +1,8 @@
 .idea/
 __pycache__/
+
+.vscode
+
+set_*
+venv
+models
