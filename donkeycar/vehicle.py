@@ -9,9 +9,9 @@ Created on Sun Jun 25 10:44:24 2017
 import time
 from threading import Thread
 from .memory import Memory
-from .log import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger()
 
 
 class Vehicle:
