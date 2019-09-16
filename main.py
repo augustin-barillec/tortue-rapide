@@ -147,9 +147,9 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
     else:
         print("Debug : ignoring controller part.")
 
-        # run the vehicle
-        V.start(rate_hz=cfg.DRIVE_LOOP_HZ,
-                max_loop_count=cfg.MAX_LOOPS)
+    # run the vehicle
+    V.start(rate_hz=cfg.DRIVE_LOOP_HZ,
+            max_loop_count=cfg.MAX_LOOPS)
 
 
 if __name__ == '__main__':
