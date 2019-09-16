@@ -2,10 +2,11 @@
 
 <head>
     <title>Record some images</title>
-    
+
     <!-- CSS sheets -->
     <link rel="stylesheet" href="static/main.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"></link>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    </link>
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 
     <!-- Javascript -->
@@ -20,14 +21,14 @@
     <div class="row">
         <div class="col-md-2">
             <label for="record_toggle">Record?</label>
-                <!-- <h2>Record? </h2><br /> -->
-                <input name="record_toggle" type="checkbox" id="record_toggle" data-toggle="toggle">
+            <!-- <h2>Record? </h2><br /> -->
+            <input name="record_toggle" type="checkbox" id="record_toggle" data-toggle="toggle">
             </label>
         </div>
         <div class="col-md-2">
             <label for="pilot_toggle">Autopilot?</label>
-                <!-- <h2>Autopilot?</h2><br /> -->
-                <input name="pilot_toggle" type="checkbox" id="pilot_toggle" data-toggle="toggle">
+            <!-- <h2>Autopilot?</h2><br /> -->
+            <input name="pilot_toggle" type="checkbox" id="pilot_toggle" data-toggle="toggle">
             </label>
         </div>
         <div class="col-md-2">
@@ -35,12 +36,20 @@
             <h2>Speed</h2><br />
             <div name="speedGauge" class="GaugeMeter" id="speedGauge"></div>
         </div>
+        <div class="col-md-2">
+            <select name="models" id="models" class="form-control">
+                <option value="">No model (manual)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button id="refresh_models_list" type="button" class="btn btn-primary">Refresh</button>
+        </div>
     </div>
     <div class="row">
         <div class="col-md-6">
             <img src="static/cat.png" id="cat">
         </div>
-    <script src="static/main.js"></script>
+        <script src="static/main.js"></script>
 </body>
 
 </html>

@@ -8,12 +8,37 @@ let isAutoPilot = false;
 let gamePadOutSent = false;
 let throttle = 0;
 
-$(document).ready(function () {
-  $(".GaugeMeter").gaugeMeter();
+function extend_array(a, b) {
+  for (let i = 0; i < b.length; i++) {
+    a.push(b[i])
+  }
+  return a
+}
 
-  // $(document).on("keydown", function(e){
-  //   if isA
-  // });
+$(document).ready(function () {
+  // Get the exising models on start, use refresh_models_list button to refresh
+  let models_list = []
+  const no_model = "No model (manual)"
+  fill_models_list("get_models_list")
+
+  function fill_models_list(to_emit) {
+    // Delete all the options
+    var select = $("#models");
+    select.find("option").remove()
+    // Always start with the "no model" option
+    models_list = [no_model]
+
+    // Get the new list of models
+    socket.emit(to_emit, function (list) {
+      models_list = extend_array(models_list, list);
+      // Add the new list as options
+      $.each(models_list, function (index, item) {
+        select.append(new Option(item, item));
+      });
+    })
+  }
+
+  $(".GaugeMeter").gaugeMeter();
 
   $("#record_toggle").on("change", function (e) {
     if (this.checked) socket.emit("start_recording");
@@ -28,8 +53,14 @@ $(document).ready(function () {
     isRecording = false;
   });
 
-  socket.on("latest_image", function(data) {
-    console.log(`latest image received: \n ${data}`);
+  $("#models").on("change", function(event) {
+    const options_value = $(event.currentTarget).val()
+    const value = options_value === no_model ? "" : options_value
+    socket.emit("set_model", value)
+  })
+
+  $("#refresh_models_list").on("click", function (e) {
+    fill_models_list("refresh_models_list");
   });
 
   function gamePadLoop() {
@@ -47,13 +78,13 @@ $(document).ready(function () {
       return;
     }
 
-    if(isRecording) {
+    if (isRecording) {
       throttle = -pad.axes[1];
       angle = pad.axes[2];
       socket.emit("gamepad_input", angle, throttle);
     }
-    
-    if(gamePadOutSent) gamePadOutSent = false;
+
+    if (gamePadOutSent) gamePadOutSent = false;
   }
   gamePadLoop();
 
