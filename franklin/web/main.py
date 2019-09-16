@@ -63,10 +63,10 @@ def gamepad_out():
 def set_model(name):
     if name == "":
         print("Switching to human mode")
-        car.current_model = None
+        car.model_path = None
     else:
         print("Switching to model \"{}\"".format(name))
-        car.current_model = name
+        car.model_path = models.models[name]
 
 
 @socketio.on("start_pilot")

@@ -89,7 +89,7 @@ class Car():
         self.record_thread.join()
         self.camera.thread.join()
 
-        print("Loading model...")
+        print("Loading model \"{}\" ...".format(self.__model_path))
         model = keras.models.load_model(self.__model_path)
         global graph
         graph = get_default_graph()
