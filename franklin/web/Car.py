@@ -77,33 +77,6 @@ class Car():
         else:
             self.__model_path = value
             self.__load_model = True # The next loop of drive will load the new model
-        
-            
-    def start_all(self):
-        """Starts all the threads of all the different car parts."""
-        
-        print("Starting car parts...")
-        self.run = True
-        self.camera.run = True
-
-        self.drive_thread = Thread(target=self.drive)
-        self.record_thread = Thread(target=self.record_images)
-        self.camera.thread = Thread(target=self.camera.consume)
-        
-        self.drive_thread.start()
-        self.record_thread.start()
-        self.camera.thread.start()
-
-    def stop_all(self):
-        """Stops the threads of all the different car parts."""
-
-        print("Stopping car parts...")
-        self.run = False
-        self.camera.run = False
-
-        self.drive_thread.join()
-        self.record_thread.join()
-        self.camera.thread.join()
 
     def load_model(self):
 
