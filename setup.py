@@ -36,19 +36,19 @@ setup(name='donkeycar',
                         ],
 
       extras_require={
-                      'tf': ['tensorflow=1.8.1'],
-                      'tf_gpu': ['tensorflow-gpu=1.8.1'],
-                      'pi': [
-                          'picamera',
-                          'Adafruit_PCA9685',
-                          ],
-                      'dev': [
-                          'pytest',
-                          'pytest-cov',
-                          'responses'
-                          ],
-                      'ci': ['codecov']
-                  },
+          'tf': ['tensorflow=1.8.1'],
+          'tf_gpu': ['tensorflow-gpu=1.8.1'],
+          'pi': [
+              'picamera',
+              'Adafruit_PCA9685',
+          ],
+          'dev': [
+              'pytest',
+              'pytest-cov',
+              'responses'
+          ],
+          'ci': ['codecov']
+      },
 
       include_package_data=True,
 
