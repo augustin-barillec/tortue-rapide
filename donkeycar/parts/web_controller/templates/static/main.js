@@ -20,9 +20,9 @@ var driveHandler = new function() {
                   'controlMode': 'joystick',
                   'maxThrottle' : 1,
                   'throttleMode' : 'user',
-                  }
+              };
 
-    var joystick_options = {}
+    var joystick_options = {};
     var joystickLoopRunning=false;
 
     var hasGamepad = false;
@@ -30,15 +30,15 @@ var driveHandler = new function() {
     var deviceHasOrientation=false;
     var initialGamma;
 
-    var vehicle_id = ""
-    var driveURL = ""
-    var vehicleURL = ""
+    var vehicle_id = "";
+    var driveURL = "";
+    var vehicleURL = "";
 
     this.load = function() {
-      driveURL = '/drive'
-      vehicleURL = '/drive'
+      driveURL = '/drive';
+      vehicleURL = '/drive';
 
-      setBindings()
+      setBindings();
 
       joystick_options = {
         zone: document.getElementById('joystick_container'),  // active zone
@@ -47,10 +47,10 @@ var driveHandler = new function() {
       };
 
       var manager = nipplejs.create(joystick_options);
-      bindNipple(manager)
+      bindNipple(manager);
 
       if(!!navigator.getGamepads){
-        console.log("Device has gamepad support.")
+        console.log("Device has gamepad support.");
         hasGamepad = true;
       }
 
@@ -64,6 +64,26 @@ var driveHandler = new function() {
         state.controlMode = 'joystick';
       }
     };
+
+    ///////////////////////////////////// TEST TIMEOUT //////////////////////////////////////////
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            alert("ready state = 4");
+        }
+    };
+
+    xhr.open("get", "10.19.1.167:8887", true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhr.timeout = 500;
+    xhr.ontimeout = function () {
+        alert("Timed out!!!");
+        toggleBrake();
+    };
+    xhr.send(json);
+
+
+    // //////////////////////////////////////////////////////////////////////////////////////////
 
 
     var setBindings = function() {
