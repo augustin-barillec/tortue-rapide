@@ -66,21 +66,39 @@ var driveHandler = new function() {
     };
 
     ///////////////////////////////////// TEST TIMEOUT //////////////////////////////////////////
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            alert("ready state = 4");
-        }
-    };
+    // var xhr = new XMLHttpRequest();
+    // xhr.onreadystatechange = function () {
+    //     if (xhr.readyState == 4) {
+    //         alert("ready state = 4");
+    //     }
+    // };
+    //
+    // xhr.open("get", "10.19.1.167", true);
+    // xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    // xhr.timeout = 500;
+    // xhr.ontimeout = function () {
+    //     log("Timed out!!!");
+    //     toggleBrake()
+    // };
+    // xhr.send(json);
+    //
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", "http://10.19.1.167:8887/video", true);
 
-    xhr.open("get", "10.19.1.167:8887", true);
-    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    xhr.timeout = 500;
-    xhr.ontimeout = function () {
-        alert("Timed out!!!");
-        toggleBrake();
-    };
-    xhr.send(json);
+    xmlHttp.onreadystatechange=function(){
+       if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+          clearTimeout(xmlHttpTimeout);
+          alert(xmlHttp.responseText);
+       }
+    }
+    // Now that we're ready to handle the response, we can make the request
+    xmlHttp.send("");
+    // Timeout to abort in 5 seconds
+    var xmlHttpTimeout=setTimeout(ajaxTimeout,500);
+    function ajaxTimeout(){
+       xmlHttp.abort();
+       console.log("Request timed out");
+    }
 
 
     // //////////////////////////////////////////////////////////////////////////////////////////
