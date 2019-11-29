@@ -135,15 +135,12 @@ class VideoAPI(tornado.web.RequestHandler):
         while True:
 
             interval = .1
-            if self.served_image_timestamp + interval < time.time():
 
-                img = util.img.arr_to_binary(self.application.img_arr)
+            img = util.img.arr_to_binary(self.application.img_arr)
 
-                self.write(my_boundary)
-                self.write("Content-type: image/jpeg\r\n")
-                self.write("Content-length: %s\r\n\r\n" % len(img))
-                self.write(img)
-                self.served_image_timestamp = time.time()
-                yield tornado.gen.Task(self.flush)
-            else:
-                yield tornado.gen.Task(ioloop.add_timeout, ioloop.time() + interval)
+            self.write(my_boundary)
+            self.write("Content-type: image/jpeg\r\n")
+            self.write("Content-length: %s\r\n\r\n" % len(img))
+            self.write(img)
+            self.served_image_timestamp = time.time()
+            yield tornado.gen.Task(self.flush)

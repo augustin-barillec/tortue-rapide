@@ -12,7 +12,7 @@ import numpy as np
 IMAGES
 """
 
-def scale(im, size=128):
+def scale(im, size=1280):
     """
     accepts: PIL image, size of square sides
     returns: PIL image scaled so sides length = size
