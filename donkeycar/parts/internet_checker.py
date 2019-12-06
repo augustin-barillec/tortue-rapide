@@ -1,4 +1,5 @@
 import socket
+import time
 
 
 def internet(host="8.8.8.8", port=53, timeout=1):
@@ -19,4 +20,6 @@ class InternetChecker:
         return self._internet
 
     def update(self):
-        self._internet = internet()
+        while True:
+            self._internet = internet()
+            time.sleep(1)

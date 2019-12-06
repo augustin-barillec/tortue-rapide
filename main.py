@@ -76,6 +76,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
         if internet:
             return user_angle_1, user_throttle_1
         else:
+            print('stopping')
             return 0, 0
 
     stop_if_no_internet_part = Lambda(stop_if_no_internet)
@@ -165,20 +166,6 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
 
     else:
         print("Debug : ignoring controller part.")
-
-    from threading import Thread
-    import time
-    from donkeycar.parts.internet_checker import internet
-
-    def f():
-        while True:
-            print("internet={}".format(V.mem.get(['internet'])))
-            print("toto:{}".format(internet()))
-            time.sleep(1)
-
-    t = Thread(target=f, args=())
-    t.daemon = True
-    t.start()
 
     # run the vehicle
     V.start(rate_hz=cfg.DRIVE_LOOP_HZ,
