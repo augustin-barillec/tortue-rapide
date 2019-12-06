@@ -23,6 +23,7 @@ from donkeycar.parts.controller import LocalWebController
 from tensorflow.python.keras.models import load_model
 
 from donkeycar.parts import model_wrappers
+from donkeycar.parts.internet_checker import InternetChecker
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -62,8 +63,26 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
 
     V.add(ctr,
           inputs=['cam/image_array'],
-          outputs=['user/angle', 'user/throttle', 'user/mode', 'recording'],
+          outputs=['user/angle1', 'user/throttle1', 'user/mode', 'recording'],
           threaded=True)
+
+    internet_checker = InternetChecker()
+
+    V.add(internet_checker,
+          outputs=['internet'],
+          threaded=True)
+
+    def stop_if_no_internet(internet, user_angle_1, user_throttle_1):
+        if internet:
+            return user_angle_1, user_throttle_1
+        else:
+            return 0, 0
+
+    stop_if_no_internet_part = Lambda(stop_if_no_internet)
+
+    V.add(stop_if_no_internet_part,
+          inputs=['internet', 'user/angle1', 'user/throttle1'],
+          outputs=['user/angle', 'user/throttle'])
 
     # See if we should even run the pilot module.
     # This is only needed because the part run_condition only accepts boolean
@@ -147,6 +166,20 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
     else:
         print("Debug : ignoring controller part.")
 
+    from threading import Thread
+    import time
+    from donkeycar.parts.internet_checker import internet
+
+    def f():
+        while True:
+            print("internet={}".format(V.mem.get(['internet'])))
+            print("toto:{}".format(internet()))
+            time.sleep(1)
+
+    t = Thread(target=f, args=())
+    t.daemon = True
+    t.start()
+
     # run the vehicle
     V.start(rate_hz=cfg.DRIVE_LOOP_HZ,
             max_loop_count=cfg.MAX_LOOPS)
@@ -164,6 +197,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     drive(cfg, model_path=args.model_path, model_wrapper=args.model_wrapper, debug=args.debug)
+
+
 
 
 
