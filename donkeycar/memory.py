@@ -1,23 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jun 25 11:07:48 2017
-
-@author: wroscoe
-"""
-
-
 class Memory:
     """
     A convenience class to save key/value pairs.
     """
-    def __init__(self, *args, **kw):
+    def __init__(self):
         self.d = {}
 
     def __setitem__(self, key, value):
         if type(key) is not tuple:
             key = (key,)
-            value=(value,)
+            value = (value,)
 
         for i, k in enumerate(key):
             self.d[k] = value[i]
