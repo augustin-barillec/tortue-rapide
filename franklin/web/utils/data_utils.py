@@ -1,3 +1,5 @@
+import os
+
 def map_range(x, X_min, X_max, Y_min, Y_max):
     """
     Linear mapping between two ranges of values
@@ -9,3 +11,4 @@ def map_range(x, X_min, X_max, Y_min, Y_max):
     y = ((x - X_min) / XY_ratio + Y_min) // 1
 
     return int(y)
+    
