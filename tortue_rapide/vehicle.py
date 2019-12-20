@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jun 25 10:44:24 2017
-
-@author: wroscoe
-"""
-
 import time
 from threading import Thread
 from .memory import Memory
@@ -25,20 +17,6 @@ class Vehicle:
 
     def add(self, part, inputs=[], outputs=[],
             threaded=False, run_condition=None):
-        """
-        Method to add a part to the vehicle drive loop.
-
-        Parameters
-        ----------
-            inputs : list
-                Channel names to get from memory.
-            outputs : list
-                Channel names to save to memory.
-            threaded : boolean
-                If a part should be run in a separate thread.
-            run_condition: boolean
-                If a part should be run at all.
-        """
 
         p = part
         logger.info('Adding part {}.'.format(p.__class__.__name__))
@@ -55,33 +33,14 @@ class Vehicle:
         self.parts.append(entry)
 
     def start(self, rate_hz=10, max_loop_count=None):
-        """
-        Start vehicle's main drive loop.
-
-        This is the main thread of the vehicle. It starts all the new
-        threads for the threaded parts then starts an infinit loop
-        that runs each part and updates the memory.
-
-        Parameters
-        ----------
-
-        rate_hz : int
-            The max frequency that the drive loop should run. The actual
-            frequency may be less than this if there are many blocking parts.
-        max_loop_count : int
-            Maxiumum number of loops the drive loop should execute. This is
-            used for testing the all the parts of the vehicle work.
-        """
 
         try:
             self.on = True
 
             for entry in self.parts:
                 if entry.get('thread'):
-                    # start the update thread
                     entry.get('thread').start()
 
-            # wait until the parts warm up.
             logger.info('Starting vehicle...')
             time.sleep(1)
 
@@ -92,7 +51,6 @@ class Vehicle:
 
                 self.update_parts()
 
-                # stop drive loop if loop_count exceeds max_loopcount
                 if max_loop_count and loop_count > max_loop_count:
                     self.on = False
 
@@ -106,29 +64,22 @@ class Vehicle:
             self.stop()
 
     def update_parts(self):
-        """
-        loop over all parts
-        """
+
         for entry in self.parts:
-            # don't run if there is a run condition that is False
             run = True
             if entry.get('run_condition'):
                 run_condition = entry.get('run_condition')
                 run = self.mem.get([run_condition])[0]
-                # print('run_condition', entry['part'], entry.get('run_condition'), run)
 
             if run:
                 p = entry['part']
-                # get inputs from memory
                 inputs = self.mem.get(entry['inputs'])
 
-                # run the part
                 if entry.get('thread'):
                     outputs = p.run_threaded(*inputs)
                 else:
                     outputs = p.run(*inputs)
 
-                # save the output to memory
                 if outputs is not None:
                     self.mem.put(entry['outputs'], outputs)
 

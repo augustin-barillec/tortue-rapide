@@ -1,12 +1,13 @@
-from .setup import on_pi
+from tests.setup import on_pi
 
-from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
+from tortue_rapide.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 import pytest
 
 
 @pytest.mark.skipif(on_pi() == False, reason='Not on RPi')
 def test_PCA9685():
     c = PCA9685(0)
+
 
 @pytest.mark.skipif(on_pi() == False, reason='Not on RPi')
 def test_PWMSteering():

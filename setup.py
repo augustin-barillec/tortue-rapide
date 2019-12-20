@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
-setup(name='donkeycar',
+setup(name='tortue_rapide',
       version='2.5.1',
       description='Self driving library for python.',
       long_description=long_description,
@@ -19,7 +19,7 @@ setup(name='donkeycar',
       license='MIT',
       entry_points={
           'console_scripts': [
-              'donkey=donkeycar.management.base:execute_from_command_line',
+              'donkey=tortue_rapide.management.base:execute_from_command_line',
           ],
       },
       install_requires=['numpy',
@@ -73,7 +73,7 @@ setup(name='donkeycar',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
       ],
-      keywords='selfdriving cars donkeycar diyrobocars',
+      keywords='selfdriving cars tortue_rapide diyrobocars',
 
       packages=find_packages(exclude=(['tests', 'docs', 'site', 'env'])),
       )

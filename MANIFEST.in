@@ -1,2 +1,0 @@
-include donkeycar/templates/*
-recursive-include donkeycar/parts/web_controller/templates/ *

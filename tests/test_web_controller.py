@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 import pytest
 import json
-from donkeycar.parts.web_controller.web import LocalWebController
+from tortue_rapide.parts.web_controller.web import LocalWebController
+
 
 @pytest.fixture
 def server():

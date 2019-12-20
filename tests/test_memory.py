@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import unittest
-import pytest
-from donkeycar.memory import Memory
+from tortue_rapide.memory import Memory
+
 
 class TestMemory(unittest.TestCase):
 

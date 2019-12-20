@@ -1,7 +1,5 @@
 class Memory:
-    """
-    A convenience class to save key/value pairs.
-    """
+
     def __init__(self):
         self.d = {}
 

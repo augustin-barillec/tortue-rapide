@@ -1,6 +1,0 @@
-from donkeycar.parts.model_wrappers.Angle5FlipSharpThrottleOn import Angle5FlipSharpThrottleOn
-from donkeycar.parts.model_wrappers.Angle5ifelse import Angle5ifelse
-from donkeycar.parts.model_wrappers.Angle3ifelse import Angle3ifelse
-from donkeycar.parts.model_wrappers.Angle3speedy import SpeedyFranklin3choices
-from donkeycar.parts.model_wrappers.Angle51 import Angle51
-from donkeycar.parts.model_wrappers.Angle52 import Angle52
