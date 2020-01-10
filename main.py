@@ -2,6 +2,7 @@ import os
 import subprocess
 import logging
 from datetime import datetime
+import time
 
 import tortue_rapide as dk
 from tortue_rapide.parts.recorder import Recorder
@@ -62,7 +63,11 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
     def reconnect_if_no_internet(internet):
         if not internet:
             logger.info("Trying to reconnect...")
-            cmd = "sudo rm /var/run/wpa_supplicant/wlan0 && sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf -B".split(" ")
+            cmd = ["sudo killall wpa_supplicant", "&&", 
+                    "sudo modprobe -rv rt2800usb", "&&"
+                    "sudo modprobe -v rt2800usb", "&&",
+                    "sudo wpa_supplicant -i wlan1 -c/etc/wpa_supplicant.conf -B", "&&",
+                    "sudo dhclient wlan1"]
             subprocess.run(cmd)
 
     stop_if_no_internet_part = Lambda(stop_if_no_internet)
@@ -74,7 +79,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
     reconnect_if_no_internet_part = Lambda(reconnect_if_no_internet)
 
     V.add(reconnect_if_no_internet_part,
-        inputs=['internet'])
+          inputs=['internet'])
 
     def pilot_condition(mode):
         if mode == 'user':
@@ -172,7 +177,7 @@ if __name__ == '__main__':
         level=logging.INFO,
         format="%(asctime)s %(levelname)-7s %(module)-10s :: %(message)s")
     logger = logging.getLogger(__name__)
-    if args.debug :
+    if args.debug:
         logger.setLevel(logging.DEBUG)
 
     drive(cfg, model_path=args.model_path,
