@@ -57,16 +57,24 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
             return user_angle_1, user_throttle_1
         else:
             logger.warn('stopping')
-            # cmd = "sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf -B".split(" ")
-            cmd = "sudo reboot".split(" ")
-            subprocess.run(cmd)
             return 0, 0
+
+    def reconnect_if_no_internet(internet):
+        if not internet:
+            logger.info("Trying to reconnect...")
+            cmd = "sudo rm /var/run/wpa_supplicant/wlan0 && sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf -B".split(" ")
+            subprocess.run(cmd)
 
     stop_if_no_internet_part = Lambda(stop_if_no_internet)
 
     V.add(stop_if_no_internet_part,
           inputs=['internet', 'user/angle1', 'user/throttle1'],
           outputs=['user/angle', 'user/throttle'])
+
+    reconnect_if_no_internet_part = Lambda(reconnect_if_no_internet)
+
+    V.add(reconnect_if_no_internet_part,
+        inputs=['internet'])
 
     def pilot_condition(mode):
         if mode == 'user':
