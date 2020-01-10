@@ -57,7 +57,8 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
             return user_angle_1, user_throttle_1
         else:
             logger.warn('stopping')
-            cmd = "sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf -B".split(" ")
+            # cmd = "sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf -B".split(" ")
+            cmd = "sudo reboot".split(" ")
             subprocess.run(cmd)
             return 0, 0
 
