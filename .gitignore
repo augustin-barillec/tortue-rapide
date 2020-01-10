@@ -1,6 +1,9 @@
 .idea/
 __pycache__/
 
+.coverage
+.pytest_cache
+
 .vscode
 
 set_*
