@@ -11,7 +11,7 @@ The client and web server needed to control a car remotely.
 """
 
 import random
-
+import logging
 
 import os
 import time
@@ -23,6 +23,7 @@ import tornado.gen
 
 from tortue_rapide import util
 
+logger = logging.getLogger(__name__)
 
 class LocalWebController(tornado.web.Application):
     port = 8887
@@ -31,7 +32,7 @@ class LocalWebController(tornado.web.Application):
         Create and publish variables needed on many of
         the web handlers.
         """
-        print('Starting Donkey Server...')
+        logger.info('Starting Donkey Server...')
 
         this_dir = os.path.dirname(os.path.realpath(__file__))
         self.static_file_path = os.path.join(this_dir, 'templates', 'static')
@@ -83,7 +84,7 @@ class LocalWebController(tornado.web.Application):
         """
         Print friendly message to user
         """
-        print("You can now go to {} to drive your car.".format(self.access_url))
+        logger.info("You can now go to {} to drive your car.".format(self.access_url))
 
     def update(self):
         """ Start the tornado web server. """

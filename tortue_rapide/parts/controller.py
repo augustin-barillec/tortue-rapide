@@ -1,9 +1,10 @@
-
+import logging
 
 import array
 import time
 import struct
 
+logger = logging.getLogger(__name__)
 
 from tortue_rapide.parts.web_controller.web import LocalWebController
 
@@ -106,14 +107,14 @@ class Joystick():
         call once to setup connection to dev/input/js0 and map buttons
         """
         # Open the joystick device.
-        print('Opening %s...' % self.dev_fn)
+        logger.debug('Opening %s...' % self.dev_fn)
         self.jsdev = open(self.dev_fn, 'rb')
 
         # Get the device name.
         buf = array.array('B', [0] * 64)
         ioctl(self.jsdev, 0x80006a13 + (0x10000 * len(buf)), buf) # JSIOCGNAME(len)
         self.js_name = buf.tobytes().decode('utf-8')
-        print('Device name: %s' % self.js_name)
+        logger.debug('Device name: %s' % self.js_name)
 
         # Get number of axes and buttons.
         buf = array.array('B', [0])
@@ -149,8 +150,8 @@ class Joystick():
         """
         list the buttons and axis found on this joystick
         """
-        print ('%d axes found: %s' % (self.num_axes, ', '.join(self.axis_map)))
-        print ('%d buttons found: %s' % (self.num_buttons, ', '.join(self.button_map)))
+        logger.debug ('%d axes found: %s' % (self.num_axes, ', '.join(self.axis_map)))
+        logger.debug ('%d buttons found: %s' % (self.num_buttons, ', '.join(self.button_map)))
 
 
     def poll(self):
@@ -240,7 +241,7 @@ class JoystickController(object):
             self.js = Joystick(self.dev_fn)
             self.js.init()
         except FileNotFoundError:
-            print(self.dev_fn, "not found.")
+            logger.info(self.dev_fn, "not found.")
             self.js = None
         return self.js is not None
 
@@ -276,12 +277,12 @@ class JoystickController(object):
 
             if axis == self.steering_axis:
                 self.angle = self.steering_scale * axis_val
-                print("angle", self.angle)
+                logger.debug("angle" + self.angle)
 
             if axis == self.throttle_axis:
                 #this value is often reversed, with positive value when pulling down
                 self.throttle = (self.throttle_scale * axis_val * self.max_throttle)
-                print("throttle", self.throttle)
+                logger.debug("throttle" + self.throttle)
                 self.on_throttle_changes()
 
             if button == 'trigger' and button_state == 1:
@@ -297,20 +298,20 @@ class JoystickController(object):
                     self.mode = 'local'
                 else:
                     self.mode = 'user'
-                print('new mode:', self.mode)
+                logger.debug('new mode:' + self.mode)
 
             if button == 'circle' and button_state == 1:
                 """
                 toggle recording on/off
                 """
                 if self.auto_record_on_throttle:
-                    print('auto record on throttle is enabled.')
+                    logger.debug('auto record on throttle is enabled.')
                 elif self.recording:
                     self.recording = False
                 else:
                     self.recording = True
 
-                print('recording:', self.recording)
+                logger.debug('recording:' + self.recording)
 
             if button == 'triangle' and button_state == 1:
                 """
@@ -321,7 +322,7 @@ class JoystickController(object):
                     self.throttle = self.max_throttle
                     self.on_throttle_changes()
 
-                print('max_throttle:', self.max_throttle)
+                logger.debug('max_throttle:' + self.max_throttle)
 
             if button == 'cross' and button_state == 1:
                 """
@@ -332,35 +333,35 @@ class JoystickController(object):
                     self.throttle = self.max_throttle
                     self.on_throttle_changes()
 
-                print('max_throttle:', self.max_throttle)
+                logger.debug('max_throttle:' + self.max_throttle)
 
             if button == 'base' and button_state == 1:
                 """
                 increase throttle scale
                 """
                 self.throttle_scale = round(min(0.0, self.throttle_scale + 0.05), 2)
-                print('throttle_scale:', self.throttle_scale)
+                logger.debug('throttle_scale:' + self.throttle_scale)
 
             if button == 'top2' and button_state == 1:
                 """
                 decrease throttle scale
                 """
                 self.throttle_scale = round(max(-1.0, self.throttle_scale - 0.05), 2)
-                print('throttle_scale:', self.throttle_scale)
+                logger.debug('throttle_scale:' + self.throttle_scale)
 
             if button == 'base2' and button_state == 1:
                 """
                 increase steering scale
                 """
                 self.steering_scale = round(min(1.0, self.steering_scale + 0.05), 2)
-                print('steering_scale:', self.steering_scale)
+                logger.debug('steering_scale:' + self.steering_scale)
 
             if button == 'pinkie' and button_state == 1:
                 """
                 decrease steering scale
                 """
                 self.steering_scale = round(max(0.0, self.steering_scale - 0.05), 2)
-                print('steering_scale:', self.steering_scale)
+                logger.debug('steering_scale:' + self.steering_scale)
 
             if button == 'top' and button_state == 1:
                 """
@@ -374,7 +375,7 @@ class JoystickController(object):
                     self.constant_throttle = True
                     self.throttle = self.max_throttle
                     self.on_throttle_changes()
-                print('constant_throttle:', self.constant_throttle)
+                logger.debug('constant_throttle:' + self.constant_throttle)
 
             time.sleep(self.poll_delay)
 

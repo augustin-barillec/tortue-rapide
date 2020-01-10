@@ -1,6 +1,8 @@
+import logging
 import socket
 import time
 
+logger = logging.getLogger(__name__)
 
 def internet(host="8.8.8.8", port=53, timeout=1):
     try:
@@ -8,7 +10,7 @@ def internet(host="8.8.8.8", port=53, timeout=1):
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         return True
     except socket.error as ex:
-        print(ex)
+        logger.error(ex)
         return False
 
 

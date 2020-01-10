@@ -1,4 +1,5 @@
 import os
+import logging
 from datetime import datetime
 
 import tortue_rapide as dk
@@ -24,7 +25,8 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
         V.add(cam, outputs=['cam/image_array'], threaded=True)
 
     else:
-        print("Debug : ignoring camera.")
+        logger.info("Debug : ignoring camera.")
+
         def fake_cam():
             from PIL import Image
             import numpy as np
@@ -53,7 +55,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
         if internet:
             return user_angle_1, user_throttle_1
         else:
-            print('stopping')
+            logger.warn('stopping')
             return 0, 0
 
     stop_if_no_internet_part = Lambda(stop_if_no_internet)
@@ -70,7 +72,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
 
     pilot_condition_part = Lambda(pilot_condition)
     V.add(pilot_condition_part, inputs=['user/mode'],
-                                outputs=['run_pilot'])
+          outputs=['run_pilot'])
 
     if model_path:
         model = load_model(model_path)
@@ -78,8 +80,8 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
         model_instance = model_wrapper_class(model=model)
 
         V.add(model_instance, inputs=['cam/image_array'],
-                              outputs=['pilot/angle1', 'pilot/throttle1'],
-                              run_condition='run_pilot')
+              outputs=['pilot/angle1', 'pilot/throttle1'],
+              run_condition='run_pilot')
 
         def bound_throttle(pilot_angle1, pilot_throttle1):
             if pilot_angle1 is None:
@@ -96,7 +98,8 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
               inputs=['pilot/angle1', 'pilot/throttle1'],
               outputs=['pilot/angle', 'pilot/throttle'])
 
-    set_path = os.path.join(ROOT_PATH, "set_{}".format(datetime.now().strftime("%Y%m%d%H%M%S")))
+    set_path = os.path.join(ROOT_PATH, "set_{}".format(
+        datetime.now().strftime("%Y%m%d%H%M%S")))
     os.makedirs(set_path)
     inputs = ['cam/image_array', 'user/angle', 'user/throttle']  # 'user/mode'
     rec = Recorder(path=set_path)
@@ -135,7 +138,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
         V.add(throttle, inputs=['throttle'])
 
     else:
-        print("Debug : ignoring controller part.")
+        logger.debug("Debug : ignoring controller part.")
 
     # run the vehicle
     V.start(rate_hz=cfg.DRIVE_LOOP_HZ,
@@ -153,12 +156,12 @@ if __name__ == '__main__':
     parser.add_argument('--debug', '-d', required=False, action="store_true")
     args = parser.parse_args()
 
-    drive(cfg, model_path=args.model_path, model_wrapper=args.model_wrapper, debug=args.debug)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-7s %(module)-10s :: %(message)s")
+    logger = logging.getLogger(__name__)
+    if args.debug :
+        logger.setLevel(logging.DEBUG)
 
-
-
-
-
-
-
-
+    drive(cfg, model_path=args.model_path,
+          model_wrapper=args.model_wrapper, debug=args.debug)
