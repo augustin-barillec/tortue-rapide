@@ -51,7 +51,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
 
     V.add(internet_checker,
           outputs=['internet'],
-          threaded=True)
+          threaded=False)
 
     def stop_if_no_internet(internet, user_angle, user_throttle):
         if internet:
@@ -69,7 +69,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
             #         "sudo dhclient wlan1"]
             # cmd = ["sudo reboot"]
             # subprocess.run(cmd)
-            time.sleep(2)
+            time.sleep(1)
             if not check_internet():
                 logger.info("Trying to reboot...")
                 os.system('sudo shutdown -r now')
