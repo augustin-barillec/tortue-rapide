@@ -51,36 +51,15 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
 
     V.add(internet_checker,
           outputs=['internet'],
-          threaded=False)
+          threaded=True)
 
-    def stop_if_no_internet(internet, user_angle, user_throttle):
-        if internet:
-            return user_angle, user_throttle
-        else:
-            logger.warn('stopping')
-            return 0, 0
-
-    def reconnect_if_no_internet(internet):
+    def reboot_if_no_internet(internet):
         if not internet:
-            # cmd = ["sudo killall wpa_supplicant", "&&",
-            #         "sudo modprobe -rv rt2800usb", "&&"
-            #         "sudo modprobe -v rt2800usb", "&&",
-            #         "sudo wpa_supplicant -i wlan1 -c/etc/wpa_supplicant.conf -B", "&&",
-            #         "sudo dhclient wlan1"]
-            # cmd = ["sudo reboot"]
-            # subprocess.run(cmd)
-            time.sleep(1)
-            if not check_internet():
-                logger.info("Trying to reboot...")
-                os.system('sudo shutdown -r now')
+            logger.info("Trying to reboot...")
+            V.stop()
+            os.system('sudo shutdown -r now')
 
-    stop_if_no_internet_part = Lambda(stop_if_no_internet)
-
-    V.add(stop_if_no_internet_part,
-          inputs=['internet', 'user_angle', 'user_throttle'],
-          outputs=['angle', 'throttle'])
-
-    reconnect_if_no_internet_part = Lambda(reconnect_if_no_internet)
+    reconnect_if_no_internet_part = Lambda(reboot_if_no_internet)
 
     V.add(reconnect_if_no_internet_part,
           inputs=['internet'])
@@ -97,8 +76,8 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
                                zero_pulse=cfg.THROTTLE_STOPPED_PWM,
                                min_pulse=cfg.THROTTLE_REVERSE_PWM)
 
-        V.add(steering, inputs=['angle'])
-        V.add(throttle, inputs=['throttle'])
+        V.add(steering, inputs=['user_angle'])
+        V.add(throttle, inputs=['user_throttle'])
 
     else:
         logger.debug("Debug : ignoring controller part.")
