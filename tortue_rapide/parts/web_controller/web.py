@@ -76,9 +76,9 @@ class LocalWebController(tornado.web.Application):
             self.chaos_on = False
 
         if self.chaos_on:
-            return random_steering, self.throttle, self.mode, False
+            return random_steering, self.throttle
         else:
-            return self.angle, self.throttle, self.mode, self.recording
+            return self.angle, self.throttle
 
     def say_hello(self):
         """
@@ -96,7 +96,7 @@ class LocalWebController(tornado.web.Application):
 
     def _run_threaded(self, img_arr=None):
         self.img_arr = img_arr
-        return self.angle, self.throttle, self.mode, self.recording
+        return self.angle, self.throttle
 
     def run(self, img_arr=None):
         return self.run_threaded(img_arr)
