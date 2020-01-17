@@ -12,7 +12,7 @@ from tortue_rapide.parts.controller import LocalWebController
 from tensorflow.python.keras.models import load_model
 
 from tortue_rapide.parts import model_wrappers
-from tortue_rapide.parts.internet_checker import InternetChecker
+from tortue_rapide.parts.internet_checker import InternetChecker, check_internet
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -70,7 +70,9 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
             #         "sudo dhclient wlan1"]
             # cmd = ["sudo reboot"]
             # subprocess.run(cmd)
-            os.system('sudo shutdown -r now')
+            time.sleep(2)
+            if not check_internet():
+                os.system('sudo shutdown -r now')
 
     stop_if_no_internet_part = Lambda(stop_if_no_internet)
 

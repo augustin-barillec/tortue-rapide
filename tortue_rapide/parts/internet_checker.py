@@ -4,7 +4,7 @@ import time
 
 logger = logging.getLogger(__name__)
 
-def internet(host="8.8.8.8", port=53, timeout=1):
+def check_internet(host="8.8.8.8", port=53, timeout=1):
     try:
         socket.setdefaulttimeout(timeout)
         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
@@ -23,5 +23,5 @@ class InternetChecker:
 
     def update(self):
         while True:
-            self._internet = internet()
+            self._internet = check_internet()
             time.sleep(1)
