@@ -62,7 +62,6 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
 
     def reconnect_if_no_internet(internet):
         if not internet:
-            logger.info("Trying to reboot...")
             # cmd = ["sudo killall wpa_supplicant", "&&",
             #         "sudo modprobe -rv rt2800usb", "&&"
             #         "sudo modprobe -v rt2800usb", "&&",
@@ -72,6 +71,7 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
             # subprocess.run(cmd)
             time.sleep(2)
             if not check_internet():
+                logger.info("Trying to reboot...")
                 os.system('sudo shutdown -r now')
 
     stop_if_no_internet_part = Lambda(stop_if_no_internet)
