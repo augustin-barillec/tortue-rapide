@@ -1,23 +1,17 @@
 import os
-import subprocess
 import logging
-from datetime import datetime
-import time
 
 import tortue_rapide as dk
-from tortue_rapide.parts.recorder import Recorder
 from tortue_rapide.parts.transform import Lambda
 from tortue_rapide.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from tortue_rapide.parts.controller import LocalWebController
-from tensorflow.python.keras.models import load_model
-
-from tortue_rapide.parts import model_wrappers
-from tortue_rapide.parts.internet_checker import InternetChecker, check_internet
+from tortue_rapide.parts.internet_checker import InternetChecker, \
+    InternetLaxChecker
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
-def drive(cfg, model_path=None, model_wrapper=None, debug=False):
+def drive(cfg, debug=False):
 
     V = dk.vehicle.Vehicle()
 
@@ -48,21 +42,41 @@ def drive(cfg, model_path=None, model_wrapper=None, debug=False):
           threaded=True)
 
     internet_checker = InternetChecker()
+    internet_lax_checker = InternetLaxChecker()
 
     V.add(internet_checker,
           outputs=['internet'],
           threaded=True)
 
-    def reboot_if_no_internet(internet):
+    V.add(internet_lax_checker,
+          outputs=['lax_internet'],
+          threaded=True)
+
+    def stop_if_no_internet(internet, user_angle, user_throttle):
         if not internet:
-            logger.info("Trying to reboot...")
+            return 0, 0
+        else:
+            return user_angle, user_throttle
+
+    stop_if_no_internet_part = Lambda(stop_if_no_internet)
+
+    V.add(stop_if_no_internet_part,
+          inputs=['internet', 'user_angle', 'user_throttle'],
+          outputs=['angle', 'throttle'])
+
+    def reboot_if_no_internet(lax_internet):
+        if not lax_internet:
+            logger.info('Stopping vehicle...')
             V.stop()
+            logger.info('Stopped vehicle')
+
+            logger.info('Rebooting pi')
             os.system('sudo shutdown -r now')
 
-    reconnect_if_no_internet_part = Lambda(reboot_if_no_internet)
+    reboot_if_no_internet_part = Lambda(reboot_if_no_internet)
 
-    V.add(reconnect_if_no_internet_part,
-          inputs=['internet'])
+    V.add(reboot_if_no_internet_part,
+          inputs=['lax_internet'])
 
     if not debug:
         steering_controller = PCA9685(cfg.STEERING_CHANNEL)
@@ -93,8 +107,6 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', '-m', required=False, type=str)
-    parser.add_argument('--model_wrapper', '-w', required=False, type=str)
     parser.add_argument('--debug', '-d', required=False, action="store_true")
     args = parser.parse_args()
 
@@ -105,6 +117,5 @@ if __name__ == '__main__':
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    logger.info("Start")
-    drive(cfg, model_path=args.model_path,
-          model_wrapper=args.model_wrapper, debug=args.debug)
+    logger.info('Starting drive')
+    drive(cfg, debug=args.debug)
