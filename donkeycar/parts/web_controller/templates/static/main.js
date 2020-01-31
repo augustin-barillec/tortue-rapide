@@ -167,48 +167,76 @@ var driveHandler = new function() {
             //     console.log('error cant get ip');
             // });
     // /////////////////////////////////// TEST TOKEN //////////////////////////////////////////
-    localStorage.removeItem('franklinToken');
-    if (localStorage.getItem("franklinToken") === null) {
-        console.log('TOKEN MISSING');
-        let ip = window.location.hostname;
-        // CALL BACK TO SET TOKEN IN SERVER AND GET IT BACK AN SET TO localStorage
-        data = JSON.stringify({'ip': ip});
-        console.log(data);
-        $.post("/token", data).then(function(response) {
-            console.log('RESPONSE :', response);
-            console.log('RESPONSE token :', response.token);
-            if (typeof (response.token) !== undefined) {
-                localStorage.setItem('franklinToken', response.token);
-            }
-            if (typeof (response.drive) !== undefined) {
-                if ( response.drive === 'ACTIVATED') {
-                    //TODO CONDUITE OK
-                } else {
-                    //TODO CONDUITE KO
+    // localStorage.removeItem('franklinToken');
+    function tokenTest() {
+        let drive = false;
+        let elapsed = false;
+        if (localStorage.getItem("franklinToken") === null) {
+            console.log('TOKEN MISSING');
+            let ip = window.location.hostname;
+            // CALL BACK TO SET TOKEN IN SERVER AND GET IT BACK AN SET TO localStorage
+            data = JSON.stringify({'ip': ip});
+            console.log(data);
+            $.post("/token", data).then(function(response) {
+                response = JSON.parse(response);
+                console.log('RESPONSE :', response);
+                console.log('RESPONSE token :', response.token);
+                if (typeof (response.token) !== 'undefined' && response.token !== '' ) {
+                    console.log('WRITE TOKEN !!!');
+                    localStorage.setItem('franklinToken', response.token);
                 }
-            }
-        });
+                if (typeof (response.drive) !== 'undefined') {
+                    if ( response.drive === 'ACTIVATED') {
+                        //TODO CONDUITE OK
+                        console.log('CONDUITE ACTIVATED');
+                        drive = true;
+                    } else {
+                        //TODO CONDUITE KO
+                        console.log('CONDUITE DISABLED');
+                    }
+                }
+                tests();
+            });
 
-    } else {
-        console.log('TOKEN PRESENT');
-        let franklinToken = localStorage.getItem('franklinToken');
-        data = JSON.stringify({'token': franklinToken});
-        console.log(data);
-        $.post("/token", data).then(function(response) {
-            console.log('RESPONSE :', response);
-            console.log('RESPONSE token :', response.token);
-            if (typeof (response.token) !== undefined) {
-                localStorage.setItem('franklinToken', response.token);
-            }
-            if (typeof (response.drive) !== undefined) {
-                if ( response.drive === 'ACTIVATED') {
-                    //TODO CONDUITE OK
-                } else {
-                    //TODO CONDUITE KO
+        } else {
+            console.log('TOKEN PRESENT');
+            let franklinToken = localStorage.getItem('franklinToken');
+            console.log('TOKEN :', franklinToken);
+            data = JSON.stringify({'token': franklinToken});
+            console.log(data);
+            $.post("/token", data).then(function(response) {
+                response = JSON.parse(response);
+                console.log('RESPONSE :', response);
+                if (typeof (response.drive) !== 'undefined') {
+                    if ( response.drive === 'ACTIVATED') {
+                        //TODO CONDUITE OK
+                        console.log('CONDUITE ACTIVATED');
+                        drive = true
+                    } else if (response.drive === 'TIMEELAPSED') {
+                        //TODO AFFICHER TEMPS ECOULE
+                        console.log('TEMP ECOULE');
+                        elapsed = true;
+                    } else {
+                        //TODO CONDUITE KO
+                        console.log('CONDUITE DISABLED');
+                    }
                 }
+                tests();
+            });
+        }
+        function tests(){
+            if (drive) {
+                console.log('DRIVE !!! REFRESH 1000');
+                setTimeout(tokenTest,1000);
             }
-        });
+            if (elapsed) {
+                console.log('TIME ELAPSED!!! REFRESH 300000');
+                setTimeout(tokenTest,300000);
+            }
+        }
     }
+
+    tokenTest();
 
     //////////////////////////////////////////////////////////////////////////////////////////
 

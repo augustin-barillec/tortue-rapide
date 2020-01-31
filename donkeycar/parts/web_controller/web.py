@@ -28,6 +28,7 @@ from donkeycar import util
 
 class LocalWebController(tornado.web.Application):
     port = 8887
+
     def __init__(self, use_chaos=False):
         """
         Create and publish variables needed on many of
@@ -62,7 +63,8 @@ class LocalWebController(tornado.web.Application):
             (r"/drive", DriveAPI),
             (r"/token", TokenAPI),
             (r"/video", VideoAPI),
-            (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": self.static_file_path}),
+            (r"/static/(.*)", tornado.web.StaticFileHandler,
+             {"path": self.static_file_path}),
         ]
 
         settings = {'debug': True}
@@ -100,8 +102,6 @@ class LocalWebController(tornado.web.Application):
 
     def _run_threaded(self, img_arr=None):
         self.img_arr = img_arr
-        print('TOKEN :', self.token)
-        print('STARTTIME :', self.starttime)
         return self.angle, self.throttle, self.mode, self.recording
 
     def run(self, img_arr=None):
@@ -124,11 +124,8 @@ class DriveAPI(tornado.web.RequestHandler):
         self.application.mode = data['drive_mode']
         self.application.recording = data['recording']
 
+
 class TokenAPI(tornado.web.RequestHandler):
-    def get(self):
-        """
-        get
-        """
 
     def post(self):
         """
@@ -136,20 +133,59 @@ class TokenAPI(tornado.web.RequestHandler):
         and throttle of the vehicle on a the index webpage
         """
         print('POST IP !')
-        ip = tornado.escape.json_decode(self.request.body)
+        post = tornado.escape.json_decode(self.request.body)
+        print('post :', post)
         if self.application.token is None:
 
-            print('IP :', ip)
-            salt_datetime = datetime.datetime.now()
-            salt_str = salt_datetime.strftime('%Y%m%d%H%M%S%f')
-            seed = ip['ip'] + salt_str
-            print('seed :', seed)
+            if 'ip' in post:
+                print('IP :', post['ip'])
 
-            self.application.starttime = salt_datetime
-            self.application.token = hashlib.md5(b"{}.format(seed)").hexdigest()
+                salt_datetime = datetime.datetime.now()
+                salt_str = salt_datetime.strftime('%Y%m%d%H%M%S%f')
+                seed = post['ip'] + salt_str
+                print('seed :', seed)
+                self.application.starttime = salt_datetime
+                self.application.token = hashlib.md5(seed.encode()).hexdigest()
+                print('TOKEN :', self.application.token )
 
-            response = json.dumps({'token': self.application.token, 'drive' : 'ACTIVATED'})
-            self.write(response)
+                response = json.dumps({'token': self.application.token, 'drive': 'ACTIVATED'})
+                self.write(response)
+
+            if 'token' in post:
+
+                print("post['token'] :", post['token'])
+                self.application.token = post['token']
+                self.application.starttime = datetime.datetime.now()
+                response = json.dumps({'drive': 'ACTIVATED'})
+                self.write(response)
+
+        else:
+
+            if 'ip' in post:
+                response = json.dumps({'drive': 'OCCUPIED'})
+                self.write(response)
+
+            if 'token' in post:
+                print("post['token'] :", post['token'])
+                print("self.application.token :", self.application.token)
+                if post['token'] == self.application.token:
+                    now = datetime.datetime.now()
+                    if (now - self.application.starttime).total_seconds() <= 10:
+                        print('time ok')
+                        response = json.dumps({'drive': 'ACTIVATED'})
+                        self.write(response)
+                    else:
+                        print('time elapsed')
+                        self.application.token = None
+                        self.application.starttime = None
+                        response = json.dumps({'drive': 'TIMEELAPSED'})
+                        self.write(response)
+
+                else:
+                    response = json.dumps({'drive': 'OCCUPIED'})
+                    self.write(response)
+
+
 
 class VideoAPI(tornado.web.RequestHandler):
     """
@@ -161,7 +197,8 @@ class VideoAPI(tornado.web.RequestHandler):
     def get(self):
 
         ioloop = tornado.ioloop.IOLoop.current()
-        self.set_header("Content-type", "multipart/x-mixed-replace;boundary=--boundarydonotcross")
+        self.set_header(
+            "Content-type", "multipart/x-mixed-replace;boundary=--boundarydonotcross")
 
         self.served_image_timestamp = time.time()
         my_boundary = "--boundarydonotcross"
