@@ -11,7 +11,9 @@ The client and web server needed to control a car remotely.
 """
 
 import random
-
+import datetime
+import hashlib
+import json
 
 import os
 import time
@@ -40,6 +42,8 @@ class LocalWebController(tornado.web.Application):
         self.throttle = 0.0
         self.mode = 'user'
         self.recording = False
+        self.starttime = None
+        self.token = None
         self.ip_address = util.web.get_ip_address()
         self.access_url = 'http://{}:{}'.format(self.ip_address, self.port)
 
@@ -56,6 +60,7 @@ class LocalWebController(tornado.web.Application):
         handlers = [
             (r"/", tornado.web.RedirectHandler, dict(url="/drive")),
             (r"/drive", DriveAPI),
+            (r"/token", TokenAPI),
             (r"/video", VideoAPI),
             (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": self.static_file_path}),
         ]
@@ -95,6 +100,8 @@ class LocalWebController(tornado.web.Application):
 
     def _run_threaded(self, img_arr=None):
         self.img_arr = img_arr
+        print('TOKEN :', self.token)
+        print('STARTTIME :', self.starttime)
         return self.angle, self.throttle, self.mode, self.recording
 
     def run(self, img_arr=None):
@@ -117,6 +124,32 @@ class DriveAPI(tornado.web.RequestHandler):
         self.application.mode = data['drive_mode']
         self.application.recording = data['recording']
 
+class TokenAPI(tornado.web.RequestHandler):
+    def get(self):
+        """
+        get
+        """
+
+    def post(self):
+        """
+        Receive post requests as user changes the angle
+        and throttle of the vehicle on a the index webpage
+        """
+        print('POST IP !')
+        ip = tornado.escape.json_decode(self.request.body)
+        if self.application.token is None:
+
+            print('IP :', ip)
+            salt_datetime = datetime.datetime.now()
+            salt_str = salt_datetime.strftime('%Y%m%d%H%M%S%f')
+            seed = ip['ip'] + salt_str
+            print('seed :', seed)
+
+            self.application.starttime = salt_datetime
+            self.application.token = hashlib.md5(b"{}.format(seed)").hexdigest()
+
+            response = json.dumps({'token': self.application.token, 'drive' : 'ACTIVATED'})
+            self.write(response)
 
 class VideoAPI(tornado.web.RequestHandler):
     """

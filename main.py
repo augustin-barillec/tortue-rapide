@@ -164,9 +164,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     drive(cfg, model_path=args.model_path, model_wrapper=args.model_wrapper, debug=args.debug)
-
-
-
-
-
-

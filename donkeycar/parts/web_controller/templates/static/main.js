@@ -1,6 +1,5 @@
 var driveHandler = new function() {
-    //functions used to drive the vehicle.
-
+    //functions used to drive the vehicle
     var state = {'tele': {
                           "user": {
                                   'angle': 0,
@@ -82,26 +81,136 @@ var driveHandler = new function() {
     // };
     // xhr.send(json);
     //
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", "http://10.19.1.167:8887/video", true);
-
-    xmlHttp.onreadystatechange=function(){
-       if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-          clearTimeout(xmlHttpTimeout);
-          alert(xmlHttp.responseText);
-       }
-    }
-    // Now that we're ready to handle the response, we can make the request
-    xmlHttp.send("");
-    // Timeout to abort in 5 seconds
-    var xmlHttpTimeout=setTimeout(ajaxTimeout,500);
-    function ajaxTimeout(){
-       xmlHttp.abort();
-       console.log("Request timed out");
-    }
+    // var xmlHttp = new XMLHttpRequest();
+    // xmlHttp.open("GET", "http://10.19.1.167:8887/video", true);
+    //
+    // xmlHttp.onreadystatechange=function(){
+    //    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+    //       clearTimeout(xmlHttpTimeout);
+    //       alert(xmlHttp.responseText);
+    //    }
+    // }
+    // // Now that we're ready to handle the response, we can make the request
+    // xmlHttp.send("");
+    // // Timeout to abort in 5 seconds
+    // var xmlHttpTimeout=setTimeout(ajaxTimeout,500);
+    // function ajaxTimeout(){
+    //    xmlHttp.abort();
+    //    console.log("Request timed out");
+    // }
 
 
     // //////////////////////////////////////////////////////////////////////////////////////////
+    // var RTCPeerConnection = /*window.RTCPeerConnection ||*/
+    // window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+    //
+    // if (RTCPeerConnection)(function() {
+    //     var rtc = new RTCPeerConnection({
+    //         iceServers: []
+    //     });
+    //     console.log('RTC :', rtc);
+    //     if (1 || window.mozRTCPeerConnection) {
+    //         rtc.createDataChannel('', {
+    //             reliable: false
+    //         });
+    //     }
+    //
+    //     rtc.onicecandidate = function(evt) {
+    //         if (evt.candidate)
+    //             grepSDP("a=" + evt.candidate.candidate);
+    //     };
+    //
+    //     rtc.createOffer(function(offerDesc) {
+    //         grepSDP(offerDesc.sdp);
+    //         rtc.setLocalDescription(offerDesc);
+    //     }, function(e) {
+    //         console.warn("offer failed", e);
+    //     });
+    //
+    //     var addrs = Object.create(null);
+    //     addrs["0.0.0.0"] = false;
+    //
+    //     function updateDisplay(newAddr) {
+    //         if (newAddr in addrs) return;
+    //         else addrs[newAddr] = true;
+    //         var displayAddrs = Object.keys(addrs).filter(function(k) {
+    //             return addrs[k];
+    //         });
+    //         console.log(displayAddrs);
+    //         // document.getElementById('list').textContent =
+    //         //     displayAddrs.join(" or perhaps ") || "n/a";
+    //     }
+    //
+    //     function grepSDP(sdp) {
+    //         var hosts = [];
+    //         console.log('SDP :', sdp);
+    //         sdp.split('\r\n').forEach(function(line) {
+    //             if (~line.indexOf("a=candidate")) {
+    //                 var parts = line.split(' '),
+    //                     addr = parts[4],
+    //                     type = parts[7];
+    //                 if (type === 'host') updateDisplay(addr);
+    //             } else if (~line.indexOf("c=")) {
+    //                 var parts = line.split(' '),
+    //                     addr = parts[2];
+    //                 updateDisplay(addr);
+    //             }
+    //         });
+    //     }
+    // })();
+    // https://ipinfo.io/?format=jsonp&callback
+    // $.get("https://ipinfo.io/?format=jsonp&callback", function( data ) {
+        //     console.log('data', data);
+        //     data = JSON.parse(data);
+        //     console.log('data IP', data.ip);
+        // }).fail(function() {
+            //     console.log('error cant get ip');
+            // });
+    // /////////////////////////////////// TEST TOKEN //////////////////////////////////////////
+    localStorage.removeItem('franklinToken');
+    if (localStorage.getItem("franklinToken") === null) {
+        console.log('TOKEN MISSING');
+        let ip = window.location.hostname;
+        // CALL BACK TO SET TOKEN IN SERVER AND GET IT BACK AN SET TO localStorage
+        data = JSON.stringify({'ip': ip});
+        console.log(data);
+        $.post("/token", data).then(function(response) {
+            console.log('RESPONSE :', response);
+            console.log('RESPONSE token :', response.token);
+            if (typeof (response.token) !== undefined) {
+                localStorage.setItem('franklinToken', response.token);
+            }
+            if (typeof (response.drive) !== undefined) {
+                if ( response.drive === 'ACTIVATED') {
+                    //TODO CONDUITE OK
+                } else {
+                    //TODO CONDUITE KO
+                }
+            }
+        });
+
+    } else {
+        console.log('TOKEN PRESENT');
+        let franklinToken = localStorage.getItem('franklinToken');
+        data = JSON.stringify({'token': franklinToken});
+        console.log(data);
+        $.post("/token", data).then(function(response) {
+            console.log('RESPONSE :', response);
+            console.log('RESPONSE token :', response.token);
+            if (typeof (response.token) !== undefined) {
+                localStorage.setItem('franklinToken', response.token);
+            }
+            if (typeof (response.drive) !== undefined) {
+                if ( response.drive === 'ACTIVATED') {
+                    //TODO CONDUITE OK
+                } else {
+                    //TODO CONDUITE KO
+                }
+            }
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
 
 
     var setBindings = function() {
@@ -542,7 +651,8 @@ var driveHandler = new function() {
     var postDrive = function() {
 
         //Send angle and throttle values
-        data = JSON.stringify({ 'angle': state.tele.user.angle,
+        data = JSON.stringify({ 'token': state.tele.user.angle,
+                                'angle': state.tele.user.angle,
                                 'throttle':state.tele.user.throttle,
                                 'drive_mode':state.driveMode,
                                 'recording': state.recording})

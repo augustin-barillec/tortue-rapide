@@ -10,8 +10,8 @@ eventlet
 moviepy
 pandas
 
-tensorflow==1.8.0
+tensorflow==1.14.0
 
 
 #picamera
-Adafruit_PCA9685
+#Adafruit_PCA9685
