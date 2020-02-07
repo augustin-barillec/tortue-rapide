@@ -64,110 +64,57 @@ var driveHandler = new function() {
       }
     };
 
-    ///////////////////////////////////// TEST TIMEOUT //////////////////////////////////////////
-    // var xhr = new XMLHttpRequest();
-    // xhr.onreadystatechange = function () {
-    //     if (xhr.readyState == 4) {
-    //         alert("ready state = 4");
-    //     }
-    // };
-    //
-    // xhr.open("get", "10.19.1.167", true);
-    // xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    // xhr.timeout = 500;
-    // xhr.ontimeout = function () {
-    //     log("Timed out!!!");
-    //     toggleBrake()
-    // };
-    // xhr.send(json);
-    //
-    // var xmlHttp = new XMLHttpRequest();
-    // xmlHttp.open("GET", "http://10.19.1.167:8887/video", true);
-    //
-    // xmlHttp.onreadystatechange=function(){
-    //    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-    //       clearTimeout(xmlHttpTimeout);
-    //       alert(xmlHttp.responseText);
-    //    }
-    // }
-    // // Now that we're ready to handle the response, we can make the request
-    // xmlHttp.send("");
-    // // Timeout to abort in 5 seconds
-    // var xmlHttpTimeout=setTimeout(ajaxTimeout,500);
-    // function ajaxTimeout(){
-    //    xmlHttp.abort();
-    //    console.log("Request timed out");
-    // }
+    ///////////////////////////////////// TEST TOKEN //////////////////////////////////////////
 
+    var countdown = function(remaining_time){
+        var minutesLabel = document.getElementById("minutes");
+        var secondsLabel = document.getElementById("seconds");
+        var totalSeconds = remaining_time + 2;
+        setInterval(setTime, 1000);
 
-    // //////////////////////////////////////////////////////////////////////////////////////////
-    // var RTCPeerConnection = /*window.RTCPeerConnection ||*/
-    // window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-    //
-    // if (RTCPeerConnection)(function() {
-    //     var rtc = new RTCPeerConnection({
-    //         iceServers: []
-    //     });
-    //     console.log('RTC :', rtc);
-    //     if (1 || window.mozRTCPeerConnection) {
-    //         rtc.createDataChannel('', {
-    //             reliable: false
-    //         });
-    //     }
-    //
-    //     rtc.onicecandidate = function(evt) {
-    //         if (evt.candidate)
-    //             grepSDP("a=" + evt.candidate.candidate);
-    //     };
-    //
-    //     rtc.createOffer(function(offerDesc) {
-    //         grepSDP(offerDesc.sdp);
-    //         rtc.setLocalDescription(offerDesc);
-    //     }, function(e) {
-    //         console.warn("offer failed", e);
-    //     });
-    //
-    //     var addrs = Object.create(null);
-    //     addrs["0.0.0.0"] = false;
-    //
-    //     function updateDisplay(newAddr) {
-    //         if (newAddr in addrs) return;
-    //         else addrs[newAddr] = true;
-    //         var displayAddrs = Object.keys(addrs).filter(function(k) {
-    //             return addrs[k];
-    //         });
-    //         console.log(displayAddrs);
-    //         // document.getElementById('list').textContent =
-    //         //     displayAddrs.join(" or perhaps ") || "n/a";
-    //     }
-    //
-    //     function grepSDP(sdp) {
-    //         var hosts = [];
-    //         console.log('SDP :', sdp);
-    //         sdp.split('\r\n').forEach(function(line) {
-    //             if (~line.indexOf("a=candidate")) {
-    //                 var parts = line.split(' '),
-    //                     addr = parts[4],
-    //                     type = parts[7];
-    //                 if (type === 'host') updateDisplay(addr);
-    //             } else if (~line.indexOf("c=")) {
-    //                 var parts = line.split(' '),
-    //                     addr = parts[2];
-    //                 updateDisplay(addr);
-    //             }
-    //         });
-    //     }
-    // })();
-    // https://ipinfo.io/?format=jsonp&callback
-    // $.get("https://ipinfo.io/?format=jsonp&callback", function( data ) {
-        //     console.log('data', data);
-        //     data = JSON.parse(data);
-        //     console.log('data IP', data.ip);
-        // }).fail(function() {
-            //     console.log('error cant get ip');
-            // });
-    // /////////////////////////////////// TEST TOKEN //////////////////////////////////////////
-    // localStorage.removeItem('franklinToken');
+        function setTime() {
+            if (totalSeconds > 0) {
+                --totalSeconds;
+                secondsLabel.innerHTML = pad(totalSeconds % 60);
+                minutesLabel.innerHTML = pad(parseInt(totalSeconds / 60));
+            }
+        }
+
+        function pad(val) {
+          var valString = val + "";
+          if (valString.length < 2) {
+            return "0" + valString;
+          } else {
+            return valString;
+          }
+        }
+
+        element = document.querySelector('#timer');
+        element.style.display = "block";
+    };
+
+    var removeKey = function(){
+        $(document).off('keydown');
+        $(document).keydown(function(e) {
+            if(e.which == 32) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 38) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 40) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 37) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 39) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+        });
+    };
+
+    var defineKey = function(){
+        $(document).off('keydown');
+        $(document).keydown(function(e) {
+            if(e.which == 32) { toggleBrake() }
+            if(e.which == 38) { throttleUp() }
+            if(e.which == 40) { throttleDown() }
+            if(e.which == 37) { angleLeft() }
+            if(e.which == 39) { angleRight() }
+        });
+    }
+
     function tokenTest() {
         let drive = false;
         let elapsed = false;
@@ -190,9 +137,20 @@ var driveHandler = new function() {
                         //TODO CONDUITE OK
                         console.log('CONDUITE ACTIVATED');
                         drive = true;
+                        element = document.querySelector('.controller');
+                        element.style.display = "block";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "block";
+                        defineKey();
                     } else {
                         //TODO CONDUITE KO
                         console.log('CONDUITE DISABLED');
+                        element = document.querySelector('.controller');
+                        element.style.display = "none";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "none";
+                        window.alert("Someone is already drivin'");
+                        removeKey();
                     }
                 }
                 tests();
@@ -212,13 +170,44 @@ var driveHandler = new function() {
                         //TODO CONDUITE OK
                         console.log('CONDUITE ACTIVATED');
                         drive = true
+                        element = document.querySelector('.controller');
+                        element.style.display = "block";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "block";
+                        defineKey();
+                        if (typeof (response.remaining_time) !== 'undefined') {
+                            console.log("remaining_time : ", response.remaining_time);
+                            element = document.querySelector('#timer');
+                            if (element.style.display === "none") {
+                                countdown(response.remaining_time)
+                            }
+                        }
                     } else if (response.drive === 'TIMEELAPSED') {
                         //TODO AFFICHER TEMPS ECOULE
                         console.log('TEMP ECOULE');
                         elapsed = true;
+                        element = document.querySelector('.controller');
+                        element.style.display = "none";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "none";
+                        window.alert("Ur time is gone, come back later or give us your credit card number");
+                        removeKey();
                     } else {
                         //TODO CONDUITE KO
                         console.log('CONDUITE DISABLED');
+                        element = document.querySelector('.controller');
+                        element.style.display = "none";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "none";
+                        removeKey();
+                        if (typeof (response.remaining_time) !== 'undefined') {
+                            console.log("remaining_time : ", response.remaining_time);
+                            element = document.querySelector('#timer');
+                            if (element.style.display === "none") {
+                                countdown(response.remaining_time)
+                            }
+                        }
+                        // window.alert("Someone is already drivin'");
                     }
                 }
                 tests();
@@ -230,8 +219,8 @@ var driveHandler = new function() {
                 setTimeout(tokenTest,1000);
             }
             if (elapsed) {
-                console.log('TIME ELAPSED!!! REFRESH 300000');
-                setTimeout(tokenTest,300000);
+                console.log('TIME ELAPSED!!! REFRESH 30000');
+                setTimeout(tokenTest,30000);
             }
         }
     }

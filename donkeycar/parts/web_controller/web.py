@@ -44,6 +44,7 @@ class LocalWebController(tornado.web.Application):
         self.mode = 'user'
         self.recording = False
         self.starttime = None
+        self.remaining_time = None
         self.token = None
         self.ip_address = util.web.get_ip_address()
         self.access_url = 'http://{}:{}'.format(self.ip_address, self.port)
@@ -145,8 +146,9 @@ class TokenAPI(tornado.web.RequestHandler):
                 seed = post['ip'] + salt_str
                 print('seed :', seed)
                 self.application.starttime = salt_datetime
+                self.application.remaining_time = 10
                 self.application.token = hashlib.md5(seed.encode()).hexdigest()
-                print('TOKEN :', self.application.token )
+                print('TOKEN :', self.application.token)
 
                 response = json.dumps({'token': self.application.token, 'drive': 'ACTIVATED'})
                 self.write(response)
@@ -170,9 +172,11 @@ class TokenAPI(tornado.web.RequestHandler):
                 print("self.application.token :", self.application.token)
                 if post['token'] == self.application.token:
                     now = datetime.datetime.now()
-                    if (now - self.application.starttime).total_seconds() <= 10:
+                    elapsed_time = (now - self.application.starttime).total_seconds()
+                    self.application.remaining_time = 30 - elapsed_time
+                    if self.application.remaining_time >= 0:
                         print('time ok')
-                        response = json.dumps({'drive': 'ACTIVATED'})
+                        response = json.dumps({'drive': 'ACTIVATED', 'remaining_time': max(int(self.application.remaining_time), 0)})
                         self.write(response)
                     else:
                         print('time elapsed')
@@ -182,9 +186,8 @@ class TokenAPI(tornado.web.RequestHandler):
                         self.write(response)
 
                 else:
-                    response = json.dumps({'drive': 'OCCUPIED'})
+                    response = json.dumps({'drive': 'OCCUPIED', 'remaining_time': max(int(self.application.remaining_time), 0)})
                     self.write(response)
-
 
 
 class VideoAPI(tornado.web.RequestHandler):
