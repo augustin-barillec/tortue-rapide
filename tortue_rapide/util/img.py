@@ -5,7 +5,11 @@ from PIL import Image
 import numpy as np
 
 
-def scale(im, size=128):
+def scale(im, size=1280):
+    """
+    accepts: PIL image, size of square sides
+    returns: PIL image scaled so sides length = size
+    """
     size = (size,size)
     im.thumbnail(size, Image.ANTIALIAS)
     return im
@@ -48,11 +52,11 @@ def create_video(img_dir_path, output_video_path):
 
     # Run ffmpeg.
     command = ("""ffmpeg
-               -framerate 30/1
+               -framerate 60/1
                -pattern_type glob -i '%s'
                -c:v libx264
                -r 15
-               -pix_fmt yuv420p
+               -pix_fmt yuv720p
                -y
                %s""" % (full_path, output_video_path))
     response = envoy.run(command)

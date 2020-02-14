@@ -3,9 +3,11 @@ __pycache__/
 
 .coverage
 .pytest_cache
+env
 
 .vscode
 
 set_*
 venv
+env_tr
 models

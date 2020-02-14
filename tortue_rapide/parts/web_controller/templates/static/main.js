@@ -1,6 +1,5 @@
 var driveHandler = new function() {
-    //functions used to drive the vehicle.
-
+    //functions used to drive the vehicle
     var state = {'tele': {
                           "user": {
                                   'angle': 0,
@@ -20,9 +19,9 @@ var driveHandler = new function() {
                   'controlMode': 'joystick',
                   'maxThrottle' : 1,
                   'throttleMode' : 'user',
-                  }
+              };
 
-    var joystick_options = {}
+    var joystick_options = {};
     var joystickLoopRunning=false;
 
     var hasGamepad = false;
@@ -30,15 +29,15 @@ var driveHandler = new function() {
     var deviceHasOrientation=false;
     var initialGamma;
 
-    var vehicle_id = ""
-    var driveURL = ""
-    var vehicleURL = ""
+    var vehicle_id = "";
+    var driveURL = "";
+    var vehicleURL = "";
 
     this.load = function() {
-      driveURL = '/drive'
-      vehicleURL = '/drive'
+      driveURL = '/drive';
+      vehicleURL = '/drive';
 
-      setBindings()
+      setBindings();
 
       joystick_options = {
         zone: document.getElementById('joystick_container'),  // active zone
@@ -47,10 +46,10 @@ var driveHandler = new function() {
       };
 
       var manager = nipplejs.create(joystick_options);
-      bindNipple(manager)
+      bindNipple(manager);
 
       if(!!navigator.getGamepads){
-        console.log("Device has gamepad support.")
+        console.log("Device has gamepad support.");
         hasGamepad = true;
       }
 
@@ -64,6 +63,171 @@ var driveHandler = new function() {
         state.controlMode = 'joystick';
       }
     };
+
+    ///////////////////////////////////// TEST TOKEN //////////////////////////////////////////
+
+    var countdown = function(remaining_time){
+        var minutesLabel = document.getElementById("minutes");
+        var secondsLabel = document.getElementById("seconds");
+        var totalSeconds = remaining_time + 2;
+        setInterval(setTime, 1000);
+
+        function setTime() {
+            if (totalSeconds > 0) {
+                --totalSeconds;
+                secondsLabel.innerHTML = pad(totalSeconds % 60);
+                minutesLabel.innerHTML = pad(parseInt(totalSeconds / 60));
+            }
+        }
+
+        function pad(val) {
+          var valString = val + "";
+          if (valString.length < 2) {
+            return "0" + valString;
+          } else {
+            return valString;
+          }
+        }
+
+        element = document.querySelector('#timer');
+        element.style.display = "block";
+    };
+
+    var removeKey = function(){
+        $(document).off('keydown');
+        $(document).keydown(function(e) {
+            if(e.which == 32) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 38) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 40) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 37) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+            if(e.which == 39) { console.log('Grrrrrrrrrrreeeeeeeeeeeeeeee'); }
+        });
+    };
+
+    var defineKey = function(){
+        $(document).off('keydown');
+        $(document).keydown(function(e) {
+            if(e.which == 32) { toggleBrake() }
+            if(e.which == 38) { throttleUp() }
+            if(e.which == 40) { throttleDown() }
+            if(e.which == 37) { angleLeft() }
+            if(e.which == 39) { angleRight() }
+        });
+    }
+
+    function tokenTest() {
+        let drive = false;
+        let elapsed = false;
+        if (localStorage.getItem("franklinToken") === null) {
+            console.log('TOKEN MISSING');
+            let ip = window.location.hostname;
+            // CALL BACK TO SET TOKEN IN SERVER AND GET IT BACK AN SET TO localStorage
+            data = JSON.stringify({'ip': ip});
+            console.log(data);
+            $.post("/token", data).then(function(response) {
+                response = JSON.parse(response);
+                console.log('RESPONSE :', response);
+                console.log('RESPONSE token :', response.token);
+                if (typeof (response.token) !== 'undefined' && response.token !== '' ) {
+                    console.log('WRITE TOKEN !!!');
+                    localStorage.setItem('franklinToken', response.token);
+                }
+                if (typeof (response.drive) !== 'undefined') {
+                    if ( response.drive === 'ACTIVATED') {
+                        //TODO CONDUITE OK
+                        console.log('CONDUITE ACTIVATED');
+                        drive = true;
+                        element = document.querySelector('.controller');
+                        element.style.display = "block";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "block";
+                        defineKey();
+                    } else {
+                        //TODO CONDUITE KO
+                        console.log('CONDUITE DISABLED');
+                        element = document.querySelector('.controller');
+                        element.style.display = "none";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "none";
+                        window.alert("Someone is already drivin'");
+                        removeKey();
+                    }
+                }
+                tests();
+            });
+
+        } else {
+            console.log('TOKEN PRESENT');
+            let franklinToken = localStorage.getItem('franklinToken');
+            console.log('TOKEN :', franklinToken);
+            data = JSON.stringify({'token': franklinToken});
+            console.log(data);
+            $.post("/token", data).then(function(response) {
+                response = JSON.parse(response);
+                console.log('RESPONSE :', response);
+                if (typeof (response.drive) !== 'undefined') {
+                    if ( response.drive === 'ACTIVATED') {
+                        //TODO CONDUITE OK
+                        console.log('CONDUITE ACTIVATED');
+                        drive = true
+                        element = document.querySelector('.controller');
+                        element.style.display = "block";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "block";
+                        defineKey();
+                        if (typeof (response.remaining_time) !== 'undefined') {
+                            console.log("remaining_time : ", response.remaining_time);
+                            element = document.querySelector('#timer');
+                            if (element.style.display === "none") {
+                                countdown(response.remaining_time)
+                            }
+                        }
+                    } else if (response.drive === 'TIMEELAPSED') {
+                        //TODO AFFICHER TEMPS ECOULE
+                        console.log('TEMP ECOULE');
+                        elapsed = true;
+                        element = document.querySelector('.controller');
+                        element.style.display = "none";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "none";
+                        window.alert("Ur time is gone, come back later or give us your credit card number");
+                        removeKey();
+                    } else {
+                        //TODO CONDUITE KO
+                        console.log('CONDUITE DISABLED');
+                        element = document.querySelector('.controller');
+                        element.style.display = "none";
+                        element = document.querySelector('#control-bars');
+                        element.style.display = "none";
+                        removeKey();
+                        if (typeof (response.remaining_time) !== 'undefined') {
+                            console.log("remaining_time : ", response.remaining_time);
+                            element = document.querySelector('#timer');
+                            if (element.style.display === "none") {
+                                countdown(response.remaining_time)
+                            }
+                        }
+                        // window.alert("Someone is already drivin'");
+                    }
+                }
+                tests();
+            });
+        }
+        function tests(){
+            if (drive) {
+                console.log('DRIVE !!! REFRESH 1000');
+                setTimeout(tokenTest,1000);
+            }
+            if (elapsed) {
+                console.log('TIME ELAPSED!!! REFRESH 30000');
+                setTimeout(tokenTest,30000);
+            }
+        }
+    }
+
+    tokenTest();
+
+    //////////////////////////////////////////////////////////////////////////////////////////
 
 
     var setBindings = function() {
@@ -504,7 +668,8 @@ var driveHandler = new function() {
     var postDrive = function() {
 
         //Send angle and throttle values
-        data = JSON.stringify({ 'angle': state.tele.user.angle,
+        data = JSON.stringify({ 'token': state.tele.user.angle,
+                                'angle': state.tele.user.angle,
                                 'throttle':state.tele.user.throttle,
                                 'drive_mode':state.driveMode,
                                 'recording': state.recording})

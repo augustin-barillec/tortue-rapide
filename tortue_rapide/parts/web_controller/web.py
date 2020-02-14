@@ -12,6 +12,9 @@ The client and web server needed to control a car remotely.
 
 import random
 import logging
+import datetime
+import hashlib
+import json
 
 import os
 import time
@@ -27,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 class LocalWebController(tornado.web.Application):
     port = 8887
+
     def __init__(self, use_chaos=False):
         """
         Create and publish variables needed on many of
@@ -41,6 +45,9 @@ class LocalWebController(tornado.web.Application):
         self.throttle = 0.0
         self.mode = 'user'
         self.recording = False
+        self.starttime = None
+        self.remaining_time = None
+        self.token = None
         self.ip_address = util.web.get_ip_address()
         self.access_url = 'http://{}:{}'.format(self.ip_address, self.port)
 
@@ -57,8 +64,10 @@ class LocalWebController(tornado.web.Application):
         handlers = [
             (r"/", tornado.web.RedirectHandler, dict(url="/drive")),
             (r"/drive", DriveAPI),
+            (r"/token", TokenAPI),
             (r"/video", VideoAPI),
-            (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": self.static_file_path}),
+            (r"/static/(.*)", tornado.web.StaticFileHandler,
+             {"path": self.static_file_path}),
         ]
 
         settings = {'debug': True}
@@ -119,6 +128,70 @@ class DriveAPI(tornado.web.RequestHandler):
         self.application.recording = data['recording']
 
 
+class TokenAPI(tornado.web.RequestHandler):
+
+    def post(self):
+        """
+        Receive post requests as user changes the angle
+        and throttle of the vehicle on a the index webpage
+        """
+        print('POST IP !')
+        post = tornado.escape.json_decode(self.request.body)
+        print('post :', post)
+        if self.application.token is None:
+
+            if 'ip' in post:
+                print('IP :', post['ip'])
+
+                salt_datetime = datetime.datetime.now()
+                salt_str = salt_datetime.strftime('%Y%m%d%H%M%S%f')
+                seed = post['ip'] + salt_str
+                print('seed :', seed)
+                self.application.starttime = salt_datetime
+                self.application.remaining_time = 10
+                self.application.token = hashlib.md5(seed.encode()).hexdigest()
+                print('TOKEN :', self.application.token)
+
+                response = json.dumps({'token': self.application.token, 'drive': 'ACTIVATED'})
+                self.write(response)
+
+            if 'token' in post:
+
+                print("post['token'] :", post['token'])
+                self.application.token = post['token']
+                self.application.starttime = datetime.datetime.now()
+                response = json.dumps({'drive': 'ACTIVATED'})
+                self.write(response)
+
+        else:
+
+            if 'ip' in post:
+                response = json.dumps({'drive': 'OCCUPIED'})
+                self.write(response)
+
+            if 'token' in post:
+                print("post['token'] :", post['token'])
+                print("self.application.token :", self.application.token)
+                if post['token'] == self.application.token:
+                    now = datetime.datetime.now()
+                    elapsed_time = (now - self.application.starttime).total_seconds()
+                    self.application.remaining_time = 30 - elapsed_time
+                    if self.application.remaining_time >= 0:
+                        print('time ok')
+                        response = json.dumps({'drive': 'ACTIVATED', 'remaining_time': max(int(self.application.remaining_time), 0)})
+                        self.write(response)
+                    else:
+                        print('time elapsed')
+                        self.application.token = None
+                        self.application.starttime = None
+                        response = json.dumps({'drive': 'TIMEELAPSED'})
+                        self.write(response)
+
+                else:
+                    response = json.dumps({'drive': 'OCCUPIED', 'remaining_time': max(int(self.application.remaining_time), 0)})
+                    self.write(response)
+
+
 class VideoAPI(tornado.web.RequestHandler):
     """
     Serves a MJPEG of the images posted from the vehicle.
@@ -129,22 +202,20 @@ class VideoAPI(tornado.web.RequestHandler):
     def get(self):
 
         ioloop = tornado.ioloop.IOLoop.current()
-        self.set_header("Content-type", "multipart/x-mixed-replace;boundary=--boundarydonotcross")
+        self.set_header(
+            "Content-type", "multipart/x-mixed-replace;boundary=--boundarydonotcross")
 
         self.served_image_timestamp = time.time()
         my_boundary = "--boundarydonotcross"
         while True:
 
             interval = .1
-            if self.served_image_timestamp + interval < time.time():
 
-                img = util.img.arr_to_binary(self.application.img_arr)
+            img = util.img.arr_to_binary(self.application.img_arr)
 
-                self.write(my_boundary)
-                self.write("Content-type: image/jpeg\r\n")
-                self.write("Content-length: %s\r\n\r\n" % len(img))
-                self.write(img)
-                self.served_image_timestamp = time.time()
-                yield tornado.gen.Task(self.flush)
-            else:
-                yield tornado.gen.Task(ioloop.add_timeout, ioloop.time() + interval)
+            self.write(my_boundary)
+            self.write("Content-type: image/jpeg\r\n")
+            self.write("Content-length: %s\r\n\r\n" % len(img))
+            self.write(img)
+            self.served_image_timestamp = time.time()
+            yield tornado.gen.Task(self.flush)
