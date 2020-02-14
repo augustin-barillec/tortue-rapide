@@ -175,7 +175,7 @@ class TokenAPI(tornado.web.RequestHandler):
                 if post['token'] == self.application.token:
                     now = datetime.datetime.now()
                     elapsed_time = (now - self.application.starttime).total_seconds()
-                    self.application.remaining_time = 30 - elapsed_time
+                    self.application.remaining_time = 180 - elapsed_time
                     if self.application.remaining_time >= 0:
                         print('time ok')
                         response = json.dumps({'drive': 'ACTIVATED', 'remaining_time': max(int(self.application.remaining_time), 0)})
