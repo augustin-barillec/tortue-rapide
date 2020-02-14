@@ -17,7 +17,8 @@ var driveHandler = new function () {
         'pilot': 'None',
         'session': 'None',
         'lag': 0,
-        'controlMode': 'joystick',
+        // 'controlMode': 'joystick',
+        'controlMode': 'gamepad',
         'maxThrottle': 1,
         'throttleMode': 'user',
     };
@@ -139,16 +140,14 @@ var driveHandler = new function () {
 
     function decelerate() {
         $(document).keyup(function (e) {
-            setTimeout(function () {
-                if (e.which == 38 || e.which == 40) {
-                    state.tele.user.throttle = 0;
-                    postDrive();
-                }
-                if (e.which == 37 || e.which == 39) {
-                    state.tele.user.angle = 0;
-                    postDrive();
-                }
-            }, 1000);
+            if (e.which == 38 || e.which == 40) {
+                state.tele.user.throttle = 0;
+                postDrive();
+            }
+            if (e.which == 37 || e.which == 39) {
+                state.tele.user.angle = 0;
+                postDrive();
+            }
         });
     }
 
