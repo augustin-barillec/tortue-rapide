@@ -319,24 +319,26 @@ var driveHandler = new function () {
             toggleBrake();
         });
 
-        $('input[type=radio][name=controlMode]').change(function () {
-            if (this.value == 'joystick') {
-                state.controlMode = "joystick";
-                joystickLoopRunning = true;
-                console.log('joystick mode');
-                joystickLoop();
-            } else if (this.value == 'tilt' && deviceHasOrientation) {
-                joystickLoopRunning = false;
-                state.controlMode = "tilt";
-                console.log('tilt mode')
-            } else if (this.value == 'gamepad' && hasGamepad) {
-                joystickLoopRunning = false;
-                state.controlMode = "gamepad";
-                console.log('gamepad mode')
-                gamePadLoop();
-            }
-            updateUI();
-        });
+        // $('input[type=radio][name=controlMode]').change(function () {
+        //     if (this.value == 'joystick') {
+        //         state.controlMode = "joystick";
+        //         joystickLoopRunning = true;
+        //         console.log('joystick mode');
+        //         joystickLoop();
+        //     } else if (this.value == 'tilt' && deviceHasOrientation) {
+        //         joystickLoopRunning = false;
+        //         state.controlMode = "tilt";
+        //         console.log('tilt mode')
+        //     } else if (this.value == 'gamepad' && hasGamepad) {
+        //         joystickLoopRunning = false;
+        //         state.controlMode = "gamepad";
+        //         console.log('gamepad mode')
+        //         gamePadLoop();
+        //     }
+        //     updateUI();
+        // });
+
+        gamePadLoop();
 
     };
 
