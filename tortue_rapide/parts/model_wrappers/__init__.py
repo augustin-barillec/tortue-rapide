@@ -1,6 +1,0 @@
-from tortue_rapide.parts.model_wrappers.Angle5FlipSharpThrottleOn import Angle5FlipSharpThrottleOn
-from tortue_rapide.parts.model_wrappers.Angle5ifelse import Angle5ifelse
-from tortue_rapide.parts.model_wrappers.Angle3ifelse import Angle3ifelse
-from tortue_rapide.parts.model_wrappers.Angle3speedy import SpeedyFranklin3choices
-from tortue_rapide.parts.model_wrappers.Angle51 import Angle51
-from tortue_rapide.parts.model_wrappers.Angle52 import Angle52

@@ -5,8 +5,6 @@ import tortue_rapide as dk
 from tortue_rapide.parts.transform import Lambda
 from tortue_rapide.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from tortue_rapide.parts.controller import LocalWebController
-from tortue_rapide.parts.internet_checker import InternetChecker, \
-    InternetLaxChecker
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -40,43 +38,6 @@ def drive(cfg, debug=False):
           inputs=['cam/image_array'],
           outputs=['user_angle', 'user_throttle'],
           threaded=True)
-
-    internet_checker = InternetChecker()
-    internet_lax_checker = InternetLaxChecker()
-
-    V.add(internet_checker,
-          outputs=['internet'],
-          threaded=True)
-
-    V.add(internet_lax_checker,
-          outputs=['lax_internet'],
-          threaded=True)
-
-    def stop_if_no_internet(internet, user_angle, user_throttle):
-        if not internet:
-            return 0, 0
-        else:
-            return user_angle, user_throttle
-
-    stop_if_no_internet_part = Lambda(stop_if_no_internet)
-
-    V.add(stop_if_no_internet_part,
-          inputs=['internet', 'user_angle', 'user_throttle'],
-          outputs=['angle', 'throttle'])
-
-    def reboot_if_no_internet(lax_internet):
-        if not lax_internet:
-            logger.info('Stopping vehicle...')
-            V.stop()
-            logger.info('Stopped vehicle')
-
-            logger.info('Rebooting pi')
-            os.system('sudo shutdown -r now')
-
-    reboot_if_no_internet_part = Lambda(reboot_if_no_internet)
-
-    V.add(reboot_if_no_internet_part,
-          inputs=['lax_internet'])
 
     if not debug:
         steering_controller = PCA9685(cfg.STEERING_CHANNEL)
