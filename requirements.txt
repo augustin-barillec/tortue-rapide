@@ -10,7 +10,7 @@ eventlet
 moviepy
 pandas
 
-tensorflow==1.8.0
+tensorflow==1.15.4
 
 
 #picamera
