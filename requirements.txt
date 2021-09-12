@@ -1,7 +1,7 @@
 numpy
 pillow
 docopt
-tornado==4.5.3
+tornado
 requests
 h5py
 python-socketio
