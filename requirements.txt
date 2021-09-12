@@ -8,9 +8,9 @@ python-socketio
 flask
 eventlet
 moviepy
-pandas
+#pandas
 
-tensorflow==1.8.0
+#tensorflow==1.8.0
 
 
 #picamera
