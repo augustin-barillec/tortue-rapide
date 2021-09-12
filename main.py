@@ -20,7 +20,7 @@ from donkeycar.parts.recorder import Recorder
 from donkeycar.parts.transform import Lambda
 from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.controller import LocalWebController
-# from tensorflow.python.keras.models import load_model
+from tensorflow.python.keras.models import load_model
 
 from donkeycar.parts import model_wrappers
 
